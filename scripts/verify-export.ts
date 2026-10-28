@@ -25,6 +25,12 @@ export async function verifyExport(root = resolve('out')) {
   for (const file of files) {
     const path = relative(root, file);
     if (
+      /(^|\/)(design-system(?:[./]|$)|(?:fixtures|fixture-media)(?:\/|$))/.test(
+        path,
+      )
+    )
+      throw new Error(`Galeria/fixture proibida no export: ${path}`);
+    if (
       /(^|\/)(\.git|\.env[^/]*|node_modules|contracts|docs|tools|src|tests)(\/|$)|\.(php|tsx?|sql|md|map)$/.test(
         path,
       )
@@ -39,7 +45,7 @@ export async function verifyExport(root = resolve('out')) {
     if (/\.woff2?$/.test(file)) metrics.fontBytes += bytes.length;
     if (
       /\.(html|js|css|txt|json)$/.test(file) &&
-      /WORDPRESS_GRAPHQL_URL|HOSTINGER_SSH_KEY|BlooikosHeaderFooter|BlooikosFoundationSmoke|\/Applications\/XAMPP/.test(
+      /WORDPRESS_GRAPHQL_URL|HOSTINGER_SSH_KEY|BlooikosHeaderFooter|BlooikosFoundationSmoke|\/Applications\/XAMPP|SPEC05_GALLERY_ONLY|figma\.com\/api\/mcp\/asset|makeproxy-c\.figma\.site/.test(
         bytes.toString(),
       )
     )

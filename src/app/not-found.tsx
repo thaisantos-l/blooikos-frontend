@@ -1,19 +1,19 @@
 import styles from './page.module.scss';
+import { Container } from '@/components/ui/Container';
+import { ActionLink } from '@/components/ui/ActionLink';
 
 export default function NotFound() {
   return (
     <main className={styles.main}>
-      <div className="container">
+      <Container>
         <h1 className={styles.title}>Página não encontrada</h1>
         <p className={styles.description}>
           Não encontramos o endereço solicitado.
         </p>
-        {/* Navegação nativa: funciona também no export sem JavaScript. */}
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a className={styles.returnLink} href="/">
+        <ActionLink className={styles.returnLink} href="/">
           Voltar à página inicial
-        </a>
-      </div>
+        </ActionLink>
+      </Container>
     </main>
   );
 }

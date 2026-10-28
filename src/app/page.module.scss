@@ -7,7 +7,7 @@
 
 .title {
   margin: 0 0 var(--space-4);
-  font-size: clamp(2rem, 6vw, 4rem);
+  font-size: var(--font-size-page-title);
   font-weight: var(--font-weight-heading);
   line-height: var(--line-height-heading);
   overflow-wrap: anywhere;
@@ -17,13 +17,9 @@
   margin: 0;
   max-width: 42ch;
   color: var(--color-text-muted);
-  font-size: 1.125rem;
+  font-size: var(--font-size-body);
 }
 
 .returnLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
   margin-top: var(--space-6);
-  padding-block: var(--space-2);
 }

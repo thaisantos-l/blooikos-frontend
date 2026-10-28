@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, chore/frontend-foundation]
+    branches: [main, chore/frontend-foundation, feat/design-system]
   workflow_dispatch:
 permissions:
   contents: read

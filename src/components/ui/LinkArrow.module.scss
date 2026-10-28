@@ -1,0 +1,31 @@
+@use '../../styles/mixins';
+
+.link {
+  @include mixins.color-transition;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-min-size);
+  min-width: var(--control-min-size);
+  max-width: 100%;
+  color: var(--color-brand);
+  font-family: var(--font-body);
+  font-size: var(--font-size-action);
+  line-height: var(--line-height-link-arrow);
+  text-decoration: none;
+  &:hover .label {
+    text-decoration: underline;
+  }
+}
+
+.label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.arrow {
+  // Dimensões intrínsecas do SVG original; sem recolorir/esticar os paths.
+  flex: none;
+  width: 13px;
+  height: 7.36396px;
+}

@@ -1,0 +1,26 @@
+// Dois tons tornam o foco visível também em controles sobre fundo escuro.
+@mixin focus {
+  &:focus-visible {
+    outline: var(--focus-width) solid var(--color-text);
+    outline-offset: var(--focus-offset);
+    box-shadow: 0 0 0 var(--focus-offset) var(--color-surface);
+  }
+
+  @media (forced-colors: active) {
+    &:focus-visible {
+      outline-color: Highlight;
+      box-shadow: none;
+    }
+  }
+}
+
+@mixin color-transition {
+  transition:
+    color var(--motion-duration) ease,
+    background-color var(--motion-duration) ease,
+    border-color var(--motion-duration) ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

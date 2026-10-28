@@ -1,0 +1,8 @@
+.container {
+  width: 100%;
+  max-width: calc(var(--content-width) + 2 * var(--content-gutter));
+  margin-inline: auto;
+  padding-inline: var(--content-gutter);
+  // Compatível com row/col do Bootstrap; o gutter cabe no padding próprio.
+  --bs-gutter-x: var(--space-6);
+}
