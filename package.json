@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/prepare-build.ts && next build",
     "preview": "tsx scripts/preview.ts",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
@@ -19,6 +19,7 @@
     "graphql:generate": "tsx scripts/graphql-contract.ts generate",
     "contract:check": "tsx scripts/graphql-contract.ts check",
     "graphql:smoke": "tsx scripts/graphql-smoke.ts",
+    "validate:poc": "tsx scripts/validate-poc.ts",
     "verify:export": "tsx scripts/verify-export.ts",
     "check": "pnpm format:check && pnpm lint && pnpm contract:check && pnpm typecheck && pnpm test"
   },

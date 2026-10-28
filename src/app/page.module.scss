@@ -1,8 +1,15 @@
 .main {
-  display: flex;
-  align-items: center;
-  min-height: 100svh;
+  flex: 1;
   padding-block: clamp(2rem, 8vw, 6rem);
+}
+
+.placeholder {
+  margin-top: var(--space-12);
+  overflow-wrap: anywhere;
+  h2 {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-section);
+  }
 }
 
 .title {

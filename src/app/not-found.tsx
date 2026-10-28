@@ -4,7 +4,7 @@ import { ActionLink } from '@/components/ui/ActionLink';
 
 export default function NotFound() {
   return (
-    <main className={styles.main}>
+    <main id="conteudo" tabIndex={-1} className={styles.main}>
       <Container>
         <h1 className={styles.title}>Página não encontrada</h1>
         <p className={styles.description}>

@@ -1,0 +1,49 @@
+@use '../../styles/mixins';
+
+.desktop {
+  display: none;
+}
+.mobile {
+  width: 100%;
+}
+.summary {
+  @include mixins.focus;
+  min-height: var(--control-min-size);
+  padding: var(--space-2) var(--space-3);
+  width: fit-content;
+  margin-left: auto;
+  cursor: pointer;
+  color: var(--color-text-inverse);
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: var(--font-size-navigation);
+}
+.mobileList,
+.desktopList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  li {
+    min-width: 0;
+  }
+}
+.mobileList {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-4);
+}
+@media (min-width: 992px) {
+  .mobile {
+    display: none;
+  }
+  .desktop {
+    display: block;
+    min-width: 0;
+  }
+  .desktopList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-2) var(--space-8);
+  }
+}
