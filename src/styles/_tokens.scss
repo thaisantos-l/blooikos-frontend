@@ -1,0 +1,58 @@
+:root {
+  // Figma: About 1:180, CTA 1:232 e rodapé 1:4–18.
+  --color-brand: #0063de;
+  --color-text: #16181d;
+  --color-text-muted: #2a292e;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f8fa;
+  --color-surface-dark: #103056;
+  --color-text-inverse: #ffffff;
+  --color-text-muted-inverse: #a8b5c7;
+  --font-body: var(--font-sora), Arial, sans-serif;
+  --font-navigation: var(--font-inter), Arial, sans-serif;
+
+  // Figma: Sora 1:183/184/186/233; Inter 1:259–262; rodapé 1:5.
+  --font-weight-regular: 400;
+  --font-weight-heading: 600;
+  --font-weight-section: 400;
+  --line-height-body: 1.6;
+  --line-height-heading: 1.2;
+  --line-height-section: 1.22;
+  --line-height-eyebrow: 1.1;
+  --line-height-action: 1.32;
+  --line-height-link-arrow: 1.35;
+  --line-height-footer: 1.39;
+  --font-size-navigation: 1rem;
+  --font-size-footer: 0.875rem;
+  --font-size-action: 1.125rem;
+  --font-size-eyebrow: 1.125rem;
+  --tracking-eyebrow: 0.2em;
+  --radius-surface: 0.625rem;
+  --shadow-surface: 0 4px 8px rgb(0 0 0 / 20%);
+
+  // Convenções técnicas: escala adaptável, estados, foco e layout (SPEC 05).
+  --color-accent-on-dark: #69adff;
+  --color-brand-hover: #004fae;
+  --color-control-disabled: #d9dfe8;
+  --font-size-section: clamp(2rem, 1.5rem + 2vw, 3rem);
+  --font-size-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --font-size-page-title: clamp(2rem, 6vw, 4rem);
+  --line-height-navigation: 1.5;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --content-width: 78rem;
+  --content-gutter: clamp(1rem, 2vw, 1.5rem);
+  --radius-pill: 999px;
+  --control-min-size: 2.75rem;
+  --action-min-height: 3.9375rem;
+  --focus-width: 3px;
+  --focus-offset: 3px;
+  --motion-duration: 160ms;
+}

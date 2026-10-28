@@ -1,0 +1,50 @@
+{
+  "name": "blooikos-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=24.22.1 <25",
+    "pnpm": "12.16.1"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "preview": "tsx scripts/preview.ts",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "graphql:generate": "tsx scripts/graphql-contract.ts generate",
+    "contract:check": "tsx scripts/graphql-contract.ts check",
+    "graphql:smoke": "tsx scripts/graphql-smoke.ts",
+    "verify:export": "tsx scripts/verify-export.ts",
+    "check": "pnpm format:check && pnpm lint && pnpm contract:check && pnpm typecheck && pnpm test"
+  },
+  "dependencies": {
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "bootstrap": "5.3.8",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "sass": "1.106.1",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.3",
+    "prettier": "3.9.10",
+    "graphql": "16.14.2",
+    "@graphql-codegen/cli": "7.4.6",
+    "@graphql-codegen/typescript": "6.1.2",
+    "@graphql-codegen/typescript-operations": "6.2.0",
+    "vitest": "5.0.5",
+    "tsx": "4.23.15",
+    "@next/env": "16.4.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/node": "24.19.2"
+  },
+  "type": "module"
+}

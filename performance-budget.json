@@ -1,0 +1,7 @@
+{
+  "method": "Distinct files in out/; text gzip level 9; fonts and total as emitted bytes",
+  "javascriptGzipBytes": 307200,
+  "cssGzipBytes": 61440,
+  "fontBytes": 153600,
+  "totalBytes": 5242880
+}

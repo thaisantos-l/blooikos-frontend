@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+pnpm-lock.yaml
+contracts/cms/v1/
+src/lib/graphql/generated/
+src/assets/fonts/*LICENSE.txt

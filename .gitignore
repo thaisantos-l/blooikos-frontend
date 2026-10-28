@@ -1,0 +1,27 @@
+# Dependências
+/node_modules/
+
+# Build e exportação
+/.next/
+/out/
+/build/
+/dist/
+
+# Testes e arquivos gerados
+/coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Variáveis de ambiente
+.env*
+
+# Arquivos locais
+.DS_Store
+Thumbs.db
+*.log
+
+# Cache e documentação local (licenças de assets continuam versionáveis)
+/.pnpm-store/
+/docs/
+/prompts/
+/tools/

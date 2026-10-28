@@ -1,0 +1,63 @@
+@use '../../styles/mixins';
+
+.action {
+  @include mixins.color-transition;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--action-min-height);
+  min-width: min(100%, 15.75rem);
+  max-width: 100%;
+  padding: 1.125rem clamp(1rem, 5vw, 2.1875rem);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--font-size-action);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-action);
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.label {
+  min-width: 0;
+}
+
+.primary {
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+  &:hover:not(:disabled) {
+    background: var(--color-brand-hover);
+  }
+}
+
+.outline-inverse {
+  color: var(--color-text-inverse);
+  background: transparent;
+  border-color: currentColor;
+  &:hover:not(:disabled) {
+    background: var(--color-surface);
+    color: var(--color-surface-dark);
+  }
+}
+
+.action:disabled {
+  background: var(--color-control-disabled);
+  color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+@media (forced-colors: active) {
+  .action {
+    border-color: ButtonText;
+  }
+  .action:disabled {
+    color: GrayText;
+    border-color: GrayText;
+  }
+}

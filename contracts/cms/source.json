@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/thaisantos-l/blooikos-cms",
+  "revision": "12683c69f2ccb5b11adc2bea3fa95e5357694708",
+  "path": "wp-content/plugins/blooikos-core/contracts/graphql/v1",
+  "contractVersion": "1.0.0",
+  "sha256": {
+    "schema.graphql": "1f07948e402653cc36fa97fbdc514deaba74f2b46233dc831c8dbe88e217606e",
+    "operations.graphql": "72d39fddb81890c65ffd3c631bda384f3f1927c2690f19346f1c5d73d9107c05",
+    "contract.json": "eb77759c4022d9dc9fdfb2f1ea430b5c1246c04043b0a7b985ab89864fb97521"
+  }
+}

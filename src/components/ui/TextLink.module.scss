@@ -1,0 +1,65 @@
+@use '../../styles/mixins';
+
+.link {
+  @include mixins.color-transition;
+  color: var(--color-brand);
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  &:hover {
+    color: var(--color-brand-hover);
+  }
+}
+
+.body {
+  font-family: var(--font-body);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.navigation {
+  // Resolver o token junto da classe next/font local, não no :root sem Inter.
+  --font-navigation: var(--font-inter), Arial, sans-serif;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-min-size);
+  min-width: var(--control-min-size);
+  font-family: var(--font-navigation);
+  font-size: var(--font-size-navigation);
+  line-height: var(--line-height-navigation);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.footer {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-min-size);
+  min-width: var(--control-min-size);
+  font-family: var(--font-body);
+  font-size: var(--font-size-footer);
+  line-height: var(--line-height-footer);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.inverse {
+  color: var(--color-accent-on-dark);
+  &:hover {
+    color: var(--color-text-inverse);
+  }
+  &.navigation {
+    color: var(--color-text-inverse);
+  }
+  &.footer {
+    color: var(--color-text-muted-inverse);
+    &:hover {
+      color: var(--color-text-inverse);
+    }
+  }
+}
