@@ -1,0 +1,8 @@
+# Configuração de instalação de uma única aplicação; não há workspaces extras.
+engineStrict: true
+strictPeerDependencies: true
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  '@parcel/watcher': true

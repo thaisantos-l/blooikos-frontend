@@ -1,0 +1,20 @@
+:root {
+  // Cores do About e famílias registradas na SPEC 04 a partir do Figma.
+  --color-brand: #0063de;
+  --color-text: #16181d;
+  --color-text-muted: #2a292e;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f8fa;
+  --font-body: var(--font-sora), Arial, sans-serif;
+  --font-navigation: var(--font-inter), Arial, sans-serif;
+
+  // Convenção técnica inicial; não representa medição dos frames do Figma.
+  --font-weight-regular: 400;
+  --font-weight-heading: 600;
+  --line-height-body: 1.6;
+  --line-height-heading: 1.2;
+  --space-2: 0.5rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+}

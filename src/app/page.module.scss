@@ -1,0 +1,29 @@
+.main {
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding-block: clamp(2rem, 8vw, 6rem);
+}
+
+.title {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  overflow-wrap: anywhere;
+}
+
+.description {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--color-text-muted);
+  font-size: 1.125rem;
+}
+
+.returnLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: var(--space-6);
+  padding-block: var(--space-2);
+}
