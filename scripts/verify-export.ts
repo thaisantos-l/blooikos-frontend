@@ -3,6 +3,7 @@ import { extname, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import budget from '../performance-budget.json';
+import { verifyShell } from './export-html';
 
 export async function verifyExport(root = resolve('out')) {
   const files: string[] = [];
@@ -51,6 +52,10 @@ export async function verifyExport(root = resolve('out')) {
     )
       throw new Error(`Dados internos no export: ${path}`);
   }
+  verifyShell(
+    await readFile(join(root, 'index.html'), 'utf8'),
+    await readFile(join(root, '404.html'), 'utf8'),
+  );
   for (const file of ['index.html', '404.html']) {
     const html = await readFile(join(root, file), 'utf8');
     const robots = [...html.matchAll(/<meta\b[^>]*name="robots"[^>]*>/g)]

@@ -1,0 +1,39 @@
+.header {
+  background: var(--color-surface-dark);
+  color: var(--color-text-inverse);
+}
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  min-height: 4.5rem;
+  padding-block: var(--space-3);
+  gap: var(--space-3) var(--space-6);
+  // O disclosure ocupa uma linha inteira quando abre, sem sobrepor o conteúdo.
+  > details {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 991.98px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .inner > a {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+  .inner > details {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .inner > details > summary {
+    margin-left: auto;
+  }
+}
+@media (min-width: 992px) {
+  .inner {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-12);
+  }
+}

@@ -1,0 +1,14 @@
+.skip {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-4);
+  left: var(--space-4);
+  max-width: calc(100% - 2rem);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transform: translateY(calc(-100% - 2rem));
+  &:focus {
+    transform: none;
+  }
+}
