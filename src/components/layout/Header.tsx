@@ -4,9 +4,17 @@ import { BrandLink } from './BrandLink';
 import { PrimaryNavigation } from '../navigation/PrimaryNavigation';
 import { MobileNavigation } from '../navigation/MobileNavigation.client';
 import styles from './Header.module.scss';
-export function Header({ site }: { site: SiteChrome }) {
+export function Header({
+  site,
+  variant = 'solid',
+}: {
+  site: SiteChrome;
+  variant?: 'solid' | 'hero';
+}) {
   return (
-    <header className={styles.header}>
+    <header
+      className={`${styles.header} ${variant === 'hero' ? styles.hero : ''}`}
+    >
       <Container className={styles.inner}>
         <BrandLink
           name={site.brandName}

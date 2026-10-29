@@ -19,7 +19,7 @@ def canonical(value):
 
 def metadata(value):
     require(isinstance(value, dict) and set(value) == {'protocolVersion','profile','epoch','contentVersion','contentDigest','dataDigest','operationDigest','mediaRevision'}, 'INVALID_CONTENT_VERSION')
-    require(value['protocolVersion'] == '1' and value['profile'] == 'poc', 'INVALID_CONTENT_VERSION')
+    require(value['protocolVersion'] == '1' and value['profile'] in ('poc', 'home-hero'), 'INVALID_CONTENT_VERSION')
     for key, pattern in [('epoch', UUID), ('contentVersion', DECIMAL), ('contentDigest', HASH), ('dataDigest', HASH), ('operationDigest', HASH), ('mediaRevision', re.compile(r'(0|[1-9][0-9]{0,29})\Z'))]:
         require(isinstance(value[key], str) and pattern.fullmatch(value[key]), 'INVALID_CONTENT_VERSION')
     require(digest(canonical({k: value[k] for k in ('protocolVersion','profile','dataDigest','operationDigest','mediaRevision')}).encode()) == value['contentDigest'], 'CONTENT_DIGEST_MISMATCH')
