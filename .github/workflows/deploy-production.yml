@@ -116,37 +116,142 @@ jobs:
   publish:
     needs: [gate, build]
     if: >-
-      !cancelled() && needs.gate.result == 'success' &&
-      (needs.gate.outputs.operation == 'rollback' || needs.gate.outputs.operation == 'resume' || needs.build.result == 'success')
+      !cancelled() &&
+      needs.gate.result == 'success' &&
+      needs.build.result == 'success'
     environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ github.sha }}
-      - if: needs.gate.outputs.operation == 'deploy' || needs.gate.outputs.operation == 'bootstrap'
+      - name: Download release artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           artifact-ids: ${{ needs.build.outputs.artifact }}
           path: .deploy
           merge-multiple: true
-      - name: Verificar destino e publicar ou recuperar release
-        run: python3 scripts/deploy/cli.py run
+
+      - name: Verify release artifact
+        shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
-          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
-          HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
-          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
-          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
-          HOSTINGER_KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
-          HOSTINGER_PATH: ${{ vars.HOSTINGER_PATH }}
-          HOSTINGER_RELEASES_PATH: ${{ vars.HOSTINGER_RELEASES_PATH }}
-          HOSTINGER_STATE_PATH: ${{ vars.HOSTINGER_STATE_PATH }}
-          HOSTINGER_CMS_PATH: ${{ vars.HOSTINGER_CMS_PATH }}
-          HOSTINGER_BOOTSTRAP_SHA256: ${{ vars.HOSTINGER_BOOTSTRAP_SHA256 }}
+          EXPECTED_DIGEST: ${{ needs.build.outputs.digest }}
+        run: |
+          set -euo pipefail
+
+          ACTUAL_DIGEST="$(sha256sum .deploy/release.zip | awk '{print $1}')"
+          FILE_DIGEST="$(tr -d '\r\n' < .deploy/release.sha256)"
+
+          test "$ACTUAL_DIGEST" = "$EXPECTED_DIGEST"
+          test "$ACTUAL_DIGEST" = "$FILE_DIGEST"
+
+      - name: Extract static frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p .deploy/extracted
+          unzip -q .deploy/release.zip -d .deploy/extracted
+
+          test -f .deploy/extracted/manifest.json
+          test -f .deploy/extracted/site/index.html
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "${{ secrets.HOSTINGER_SSH_KEY }}" \
+            > ~/.ssh/blooikos_deploy
+
+          printf '%s\n' "${{ secrets.HOSTINGER_KNOWN_HOSTS }}" \
+            > ~/.ssh/known_hosts
+
+          chmod 700 ~/.ssh
+          chmod 600 ~/.ssh/blooikos_deploy
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Verify Hostinger destination
+        shell: bash
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          USER: ${{ secrets.HOSTINGER_USER }}
+          PORT: ${{ secrets.HOSTINGER_PORT }}
+          TARGET: ${{ vars.HOSTINGER_PATH }}
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -F /dev/null \
+            -i ~/.ssh/blooikos_deploy \
+            -p "$PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            "$USER@$HOST" \
+            "test -d '$TARGET' && test -d '$TARGET/cms'"
+
+      - name: Deploy static frontend
+        shell: bash
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          USER: ${{ secrets.HOSTINGER_USER }}
+          PORT: ${{ secrets.HOSTINGER_PORT }}
+          TARGET: ${{ vars.HOSTINGER_PATH }}
+        run: |
+          set -euo pipefail
+
+          rsync \
+            -az \
+            --delete \
+            --delay-updates \
+            --exclude='cms/' \
+            --exclude='.well-known/' \
+            --exclude='.htaccess' \
+            -e "ssh -F /dev/null \
+              -i $HOME/.ssh/blooikos_deploy \
+              -p $PORT \
+              -o BatchMode=yes \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes \
+              -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
+            .deploy/extracted/site/ \
+            "$USER@$HOST:$TARGET/"
+
+      - name: Confirm deployment
+        shell: bash
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          USER: ${{ secrets.HOSTINGER_USER }}
+          PORT: ${{ secrets.HOSTINGER_PORT }}
+          TARGET: ${{ vars.HOSTINGER_PATH }}
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -F /dev/null \
+            -i ~/.ssh/blooikos_deploy \
+            -p "$PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            "$USER@$HOST" \
+            "test -d '$TARGET/cms' && test -f '$TARGET/index.html'"
+
+      - name: Smoke test
+        shell: bash
+        env:
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
-          WORDPRESS_GRAPHQL_URL: ${{ vars.WORDPRESS_GRAPHQL_URL }}
-          CMS_REBUILD_VERSION_URL: ${{ vars.CMS_REBUILD_VERSION_URL }}
-          DEPLOY_PACKAGE_SHA256: ${{ needs.build.outputs.digest }}
+        run: |
+          set -euo pipefail
+
+          curl \
+            --fail \
+            --location \
+            --retry 3 \
+            --retry-delay 2 \
+            "$SITE_ORIGIN/" \
+            > /dev/null
