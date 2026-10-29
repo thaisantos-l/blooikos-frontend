@@ -8,6 +8,7 @@ import sys
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+from content import metadata
 from common import (MAX_BYTES, MAX_FILES, RELEASE, DeployError, context, digest, encoded,
                     file_path, ordinary_file, public_url, require)
 
@@ -32,7 +33,7 @@ def verify(data, expected_digest=None, expected=None):
                     'INVALID_ZIP_ENCODING')
             files[name] = archive.read(entry)
     manifest = json.loads(files.pop('manifest.json'))
-    require(manifest['schemaVersion'] == 1 and manifest['contractVersion'] == '1.0.0' and
+    require(manifest['schemaVersion'] in (1, 2) and manifest['contractVersion'] == '1.0.0' and
             manifest['repository'] == 'thaisantos-l/blooikos-frontend' and
             RELEASE.fullmatch(manifest['releaseId']), 'INVALID_MANIFEST')
     require(manifest['releaseId'] == f"{manifest['commitSHA']}-{manifest['runId']}-{manifest['attempt']}",
@@ -40,6 +41,16 @@ def verify(data, expected_digest=None, expected=None):
     if expected:
         for k, m in [('sha', 'commitSHA'), ('run', 'runId'), ('attempt', 'attempt'), ('releaseId', 'releaseId')]:
             require(expected[k] == manifest[m], 'ARTIFACT_PROVENANCE_MISMATCH')
+    if manifest['schemaVersion'] == 2:
+        metadata(manifest['content'])
+        from content import UUID
+        require(manifest['requestId'] is None or (isinstance(manifest['requestId'], str) and UUID.fullmatch(manifest['requestId'])), 'INVALID_REQUEST_ID')
+        require(manifest['protocolVersion'] == '1', 'INVALID_PROTOCOL')
+        if expected:
+            require(manifest['requestId'] == (expected.get('contentRequest') or {}).get('requestId'), 'CONTENT_REQUEST_MISMATCH')
+        if expected and expected.get('contentRequest'):
+            requested = expected['contentRequest']
+            require(manifest['requestId'] == requested['requestId'] and all(manifest['content'][k] == requested[k] for k in ('epoch','contentVersion','contentDigest')), 'CONTENT_REQUEST_MISMATCH')
     rows = manifest['files']
     require(len(rows) == len(files) and len({x['path'] for x in rows}) == len(rows), 'MANIFEST_MISMATCH')
     for row in rows:
@@ -51,11 +62,15 @@ def verify(data, expected_digest=None, expected=None):
     site = {k[5:]: v for k, v in files.items()}
     require({'index.html', '404.html', 'blooikos-release.json'} <= site.keys(), 'INCOMPLETE_EXPORT')
     require(json.loads(site['blooikos-release.json']) == {
-        k: manifest[k] for k in ('releaseId', 'commitSHA', 'buildUTC')}, 'RELEASE_MARKER_MISMATCH')
+        k: manifest[k] for k in marker_fields(manifest)}, 'RELEASE_MARKER_MISMATCH')
     return manifest, site
 
 
-def package(root, identity, build_utc, origin, endpoint):
+def marker_fields(manifest):
+    return ('releaseId', 'commitSHA', 'buildUTC') + (('schemaVersion', 'protocolVersion', 'content', 'requestId', 'runId', 'attempt') if manifest['schemaVersion'] == 2 else ())
+
+
+def package(root, identity, build_utc, origin, endpoint, snapshot=None):
     datetime.strptime(build_utc, '%Y-%m-%dT%H:%M:%SZ')
     files = {}
     require(not root.is_symlink(), 'UNSAFE_OUTPUT')
@@ -74,7 +89,10 @@ def package(root, identity, build_utc, origin, endpoint):
                     releaseId=identity['releaseId'], commitSHA=identity['sha'], runId=identity['run'],
                     attempt=identity['attempt'], buildUTC=build_utc,
                     siteOrigin=public_url(origin, True), graphqlEndpoint=public_url(endpoint))
-    files['blooikos-release.json'] = encoded({k: manifest[k] for k in ('releaseId', 'commitSHA', 'buildUTC')})
+    if snapshot is not None:
+        require(snapshot['endpoint'] == endpoint and snapshot['siteOrigin'] == origin and all(snapshot[k] == identity[k] for k in ('sha','run','attempt')), 'SNAPSHOT_PROVENANCE_MISMATCH')
+        manifest.update(schemaVersion=2, protocolVersion='1', content=metadata(snapshot['content']), requestId=snapshot['requestId'])
+    files['blooikos-release.json'] = encoded({k: manifest[k] for k in marker_fields(manifest)})
     manifest['files'] = [dict(path=k, bytes=len(v), sha256=digest(v)) for k, v in sorted(files.items())]
     manifest['totalBytes'] = sum(len(v) for v in files.values())
     output = io.BytesIO()
@@ -92,8 +110,14 @@ def package(root, identity, build_utc, origin, endpoint):
 def main():
     identity = context(os.environ)
     require(identity['operation'] in ('deploy', 'bootstrap'), 'PACKAGE_NOT_NEEDED')
+    snapshot_path = Path('.build-snapshot/poc.json')
+    ordinary_file(snapshot_path)
+    require(snapshot_path.stat().st_size <= 2097152 and snapshot_path.stat().st_mode & 0o077 == 0, 'UNSAFE_SNAPSHOT')
+    snapshot = json.loads(snapshot_path.read_bytes())
+    from content import canonical
+    require(digest(canonical(snapshot['data']).encode()) == metadata(snapshot['content'])['dataDigest'], 'SNAPSHOT_DIGEST_MISMATCH')
     data = package(Path('out'), identity, os.environ['DEPLOY_BUILD_UTC'],
-                   os.environ['SITE_ORIGIN'], os.environ['WORDPRESS_GRAPHQL_URL'])
+                   os.environ['SITE_ORIGIN'], os.environ['WORDPRESS_GRAPHQL_URL'], snapshot)
     output = Path('.deploy')
     output.mkdir(exist_ok=True)
     require(not output.is_symlink(), 'UNSAFE_OUTPUT')

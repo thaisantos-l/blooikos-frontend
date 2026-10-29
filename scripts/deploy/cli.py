@@ -10,12 +10,13 @@ from pathlib import Path
 from common import DeployError, context, public_url, require
 from package import verify
 
-MODULES = ('common', 'package', 'routing', 'smoke', 'host')
+MODULES = ('common', 'routing', 'smoke', 'content', 'package', 'host')
 # Código fixo; módulos operacionais do checkout confiável carregados somente em memória.
 LAUNCHER = '''import sys,json,types,base64
 p=json.load(sys.stdin)
+if sys.version_info < (3,9): raise SystemExit('PYTHON_VERSION_UNSUPPORTED')
 try:
- for name in ('common','package','routing','smoke','host'):
+ for name in ('common','routing','smoke','content','package','host'):
   m=types.ModuleType(name);sys.modules[name]=m;exec(compile(p['modules'][name],name+'.py','exec'),m.__dict__)
  if p['action']=='plan':
   result=sys.modules['host'].plan(p['config'],base64.b64decode(p['archive']) if p['archive'] else None,p['digest'],p['identity'])
@@ -40,7 +41,11 @@ def configuration(env, planning=False):
     require(all(config[k] for k in ('root', 'releases', 'state', 'cms')) and
             (planning or re.fullmatch(r'[0-9a-f]{64}', config['bootstrapHash'])), 'DESTINATION_CONFIG_MISSING')
     config.update(origin=public_url(env.get('SITE_ORIGIN', ''), True),
-                  endpoint=public_url(env.get('WORDPRESS_GRAPHQL_URL', '')))
+                  endpoint=public_url(env.get('WORDPRESS_GRAPHQL_URL', '')),
+                  versionUrl=public_url(env.get('CMS_REBUILD_VERSION_URL', '')))
+    from urllib.parse import urlsplit
+    version = urlsplit(config['versionUrl'])
+    require(version.netloc == urlsplit(config['endpoint']).netloc and version.path.endswith('/wp-json/blooikos/v1/content-version') and not version.query, 'INVALID_VERSION_ENDPOINT')
     # Sintaxe antes de qualquer conexão; canonicidade é conferida no host.
     for k in ('root', 'releases', 'state', 'cms'):
         require(re.fullmatch(r'/[A-Za-z0-9_./-]+', config[k]) and
@@ -61,7 +66,7 @@ def ssh(env, payload):
                 '-o', 'UserKnownHostsFile=' + str(folder / 'known_hosts'), '-o', 'ConnectTimeout=15',
                 '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=2',
                 env['HOSTINGER_USER'] + '@' + env['HOSTINGER_HOST'],
-                'python3 -c ' + shlex.quote(LAUNCHER)]
+                '/opt/alt/python311/bin/python3 -c ' + shlex.quote(LAUNCHER)]
         try:
             result = subprocess.run(args, input=json.dumps(payload).encode(), capture_output=True, timeout=480)
         except subprocess.TimeoutExpired:
