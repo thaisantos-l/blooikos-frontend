@@ -12,7 +12,7 @@ export interface SiteImage {
 }
 export interface SiteChrome {
   brandName: string;
-  logo: SiteImage;
+  logo?: SiteImage;
   logoInverse?: SiteImage;
   primaryNavigation: SiteLink[];
   footerNavigation: SiteLink[];

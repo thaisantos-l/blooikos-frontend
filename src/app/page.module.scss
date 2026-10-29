@@ -3,15 +3,6 @@
   padding-block: clamp(2rem, 8vw, 6rem);
 }
 
-.placeholder {
-  margin-top: var(--space-12);
-  overflow-wrap: anywhere;
-  h2 {
-    font-size: 1.5rem;
-    font-weight: var(--font-weight-section);
-  }
-}
-
 .title {
   margin: 0 0 var(--space-4);
   font-size: var(--font-size-page-title);
@@ -33,5 +24,4 @@
 
 .heroMain {
   flex: 1;
-  padding-bottom: var(--space-24);
 }

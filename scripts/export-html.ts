@@ -28,15 +28,16 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
     const fail = () => {
       throw new Error('Shell inválido no export: ' + name);
     };
-    for (const selector of [
-      'body > header',
-      'main',
-      'h1',
-      'body > footer',
-      'details > summary',
-    ]) {
+    for (const selector of ['body > header', 'main', 'body > footer']) {
       if (document.querySelectorAll(selector).length !== 1) fail();
     }
+    const titleCount = document.querySelectorAll('h1').length;
+    if (
+      titleCount > 1 ||
+      (name === '404.html' && titleCount !== 1) ||
+      document.querySelectorAll('details > summary').length > 1
+    )
+      fail();
     const main = document.querySelectorAll('main')[0];
     if (
       main.getAttribute('id') !== 'conteudo' ||
@@ -58,14 +59,15 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
       const nav = navs.filter(
         (node) => node.getAttribute('aria-label') === label,
       );
-      if (nav.length !== 1) fail();
+      if (nav.length > 1) fail();
+      if (!nav.length) continue;
       const count = nav[0].querySelectorAll('li').length;
       if (count < 1 || count > (label.startsWith('Empresas') ? 6 : 20)) fail();
     }
     const menu = (label: string) =>
       navs
-        .find((node) => node.getAttribute('aria-label') === label)!
-        .querySelectorAll('a')
+        .find((node) => node.getAttribute('aria-label') === label)
+        ?.querySelectorAll('a')
         .map((node) => [
           node.getAttribute('href'),
           node.getAttribute('target'),
@@ -108,10 +110,7 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
         }
       }
     }
-    for (const placement of ['header', 'footer']) {
-      const images = document.querySelectorAll(placement + ' img');
-      if (images.length !== 1) fail();
-      const img = images[0];
+    for (const img of document.querySelectorAll('img')) {
       mediaSource(img.getAttribute('src') ?? '', true);
       if (
         img.getAttribute('alt') === undefined ||

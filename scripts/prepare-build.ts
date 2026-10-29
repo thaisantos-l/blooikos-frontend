@@ -34,10 +34,7 @@ try {
   process.exitCode = child.status ?? 1;
 } catch (error) {
   if (process.env.GITHUB_OUTPUT) {
-    await appendFile(
-      process.env.GITHUB_OUTPUT,
-      `failure_category=${error instanceof PocValidationError ? 'editorial' : 'transient'}\n`,
-    );
+    await appendFile(process.env.GITHUB_OUTPUT, `failure_category=transient\n`);
   }
   console.error(
     error instanceof GraphQLClientError

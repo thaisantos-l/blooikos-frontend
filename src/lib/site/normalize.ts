@@ -74,3 +74,52 @@ export function copyrightYear(now = new Date()): string {
     timeZone: 'America/Sao_Paulo',
   }).format(now);
 }
+
+// Valores editoriais opcionais; falhas de configuração/transporte ficam no chamador.
+export function contentObject(value: unknown): Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+export function contentText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+export function contentLink(value: unknown, siteOrigin?: string) {
+  const link = contentObject(value);
+  const label = contentText(link.title),
+    url = contentText(link.url);
+  if (!label || !url) return undefined;
+  try {
+    return {
+      label,
+      href: normalizeDestination(url, siteOrigin),
+      target: link.target === '_blank' ? ('_blank' as const) : undefined,
+    };
+  } catch {
+    return undefined;
+  } // Somente destino editorial inseguro é omitido.
+}
+export function contentImage(value: unknown, production = false) {
+  const node = contentObject(contentObject(value).node);
+  const dimensions = contentObject(node.mediaDetails);
+  if (
+    !contentText(node.sourceUrl) ||
+    !['image/jpeg', 'image/png', 'image/webp'].includes(
+      String(node.mimeType),
+    ) ||
+    ![dimensions.width, dimensions.height].every(
+      (v) => typeof v === 'number' && Number.isSafeInteger(v) && v > 0,
+    )
+  )
+    return undefined;
+  try {
+    return {
+      src: mediaSource(String(node.sourceUrl), production),
+      alt: contentText(node.altText),
+      width: Number(dimensions.width),
+      height: Number(dimensions.height),
+    };
+  } catch {
+    return undefined;
+  }
+}

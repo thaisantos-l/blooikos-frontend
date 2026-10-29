@@ -2,17 +2,15 @@ import nextEnv from '@next/env';
 import { parseGraphQLConfig } from '../src/lib/env';
 import { requestGraphQL } from '../src/lib/graphql/transport';
 import { GraphQLClientError } from '../src/lib/graphql/errors';
-import {
-  validatePoc,
-  POC_CONTRACT_VERSION,
-} from '../src/lib/site/validate-poc';
+import { POC_CONTRACT_VERSION } from '../src/lib/site/validate-poc';
+import { validateContent } from '../src/lib/site/validate-hero';
 import { PocValidationError } from '../src/lib/site/types';
 
 nextEnv.loadEnvConfig(process.cwd());
 try {
-  const site = validatePoc(
+  const { site } = validateContent(
     await requestGraphQL(
-      'BlooikosHeaderFooter',
+      'BlooikosHome',
       parseGraphQLConfig(process.env, 'diagnostic'),
     ),
     { siteOrigin: process.env.SITE_ORIGIN },

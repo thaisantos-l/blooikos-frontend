@@ -46,7 +46,7 @@ export async function verifyExport(root = resolve('out')) {
     if (/\.woff2?$/.test(file)) metrics.fontBytes += bytes.length;
     if (
       /\.(html|js|css|txt|json)$/.test(file) &&
-      /WORDPRESS_GRAPHQL_URL|HOSTINGER_SSH_KEY|BlooikosHeaderFooter|BlooikosHomeHero|BlooikosFoundationSmoke|\/Applications\/XAMPP|SPEC05_GALLERY_ONLY|figma\.com\/api\/mcp\/asset|makeproxy-c\.figma\.site/.test(
+      /WORDPRESS_GRAPHQL_URL|HOSTINGER_SSH_KEY|BlooikosHeaderFooter|BlooikosHome\b|BlooikosFoundationSmoke|\/Applications\/XAMPP|SPEC05_GALLERY_ONLY|figma\.com\/api\/mcp\/asset|makeproxy-c\.figma\.site/.test(
         bytes.toString(),
       )
     )
@@ -66,7 +66,8 @@ export async function verifyExport(root = resolve('out')) {
       !/nofollow/.test(robots) ||
       !html.includes('lang="pt-BR"') ||
       (html.match(/<main\b/g) ?? []).length !== 1 ||
-      (html.match(/<h1\b/g) ?? []).length !== 1
+      (html.match(/<h1\b/g) ?? []).length > 1 ||
+      (file === '404.html' && (html.match(/<h1\b/g) ?? []).length !== 1)
     )
       throw new Error(`HTML inválido: ${file}`);
     if (/<link[^>]*rel="canonical"/.test(html))
