@@ -20,6 +20,7 @@ async function fixture() {
     'contracts/cms/v1/schema.graphql',
     'contracts/cms/v1/operations.graphql',
     'contracts/cms/v1/contract.json',
+    'contracts/rebuild/v1/home-hero.graphql',
     'src/lib/graphql/operations.graphql',
     'src/lib/graphql/generated/operations.ts',
     'src/lib/graphql/generated/types.ts',
