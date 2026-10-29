@@ -4,7 +4,13 @@ on:
     branches: [main]
   push:
     branches:
-      [main, chore/frontend-foundation, feat/design-system, feat/header-footer]
+      [
+        main,
+        chore/frontend-foundation,
+        feat/design-system,
+        feat/header-footer,
+        ci/static-deploy-poc,
+      ]
   workflow_dispatch:
 permissions:
   contents: read
@@ -35,6 +41,7 @@ jobs:
       - run: pnpm build
         env:
           WORDPRESS_GRAPHQL_URL: ${{ vars.WORDPRESS_GRAPHQL_URL }}
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
       - run: pnpm verify:export
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

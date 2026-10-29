@@ -25,3 +25,9 @@ Thumbs.db
 /docs/
 /prompts/
 /tools/
+
+# Pacotes e plano operacional local
+/.deploy/
+/.deploy-plan.json
+__pycache__/
+*.pyc

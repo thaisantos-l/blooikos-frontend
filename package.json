@@ -21,7 +21,11 @@
     "graphql:smoke": "tsx scripts/graphql-smoke.ts",
     "validate:poc": "tsx scripts/validate-poc.ts",
     "verify:export": "tsx scripts/verify-export.ts",
-    "check": "pnpm format:check && pnpm lint && pnpm contract:check && pnpm typecheck && pnpm test"
+    "check": "pnpm format:check && pnpm lint && pnpm contract:check && pnpm typecheck && pnpm test && pnpm deploy:check",
+    "deploy:package": "pnpm verify:export && python3 scripts/deploy/package.py",
+    "deploy:plan": "python3 scripts/deploy/cli.py plan",
+    "deploy:run": "python3 scripts/deploy/cli.py run",
+    "deploy:check": "python3 -m compileall -q scripts/deploy"
   },
   "dependencies": {
     "next": "16.4.3",
