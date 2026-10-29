@@ -8,7 +8,8 @@ import {
   editorialRequest,
   sha256,
 } from './content-version';
-import { validatePoc } from './validate-poc';
+import { validateContent } from './validate-hero';
+import type { ContentProfile } from './content-version';
 
 const directory = resolve('.build-snapshot');
 const filename = resolve(directory, 'poc.json');
@@ -52,11 +53,39 @@ async function version(url: string) {
   }
   return contentVersion(JSON.parse(Buffer.concat(chunks).toString('utf8')));
 }
-export async function captureSnapshot(nonce: string) {
-  const config = parseGraphQLConfig(process.env, 'production');
-  const endpoint = new URL(process.env.CMS_REBUILD_VERSION_URL || '');
+async function profileDocument(profile: ContentProfile) {
+  const base = await readFile(
+    resolve('contracts/cms/v1/operations.graphql'),
+    'utf8',
+  );
+  return profile === 'home-hero'
+    ? base +
+        '\n' +
+        (await readFile(
+          resolve('contracts/rebuild/v1/home-hero.graphql'),
+          'utf8',
+        ))
+    : base;
+}
+
+export async function readPublicSnapshot(
+  mode: 'production' | 'development' = 'production',
+) {
+  const config = parseGraphQLConfig(process.env, mode);
+  const endpoint = new URL(
+    process.env.CMS_REBUILD_VERSION_URL ||
+      new URL(
+        'wp-json/blooikos/v1/content-version',
+        config.endpoint.replace(/graphql\/?$/, ''),
+      ).href,
+  );
   if (
-    endpoint.protocol !== 'https:' ||
+    (endpoint.protocol !== 'https:' &&
+      !(
+        mode === 'development' &&
+        endpoint.protocol === 'http:' &&
+        ['localhost', '127.0.0.1', '[::1]'].includes(endpoint.hostname)
+      )) ||
     endpoint.origin !== new URL(config.endpoint).origin ||
     endpoint.username ||
     endpoint.password ||
@@ -74,20 +103,43 @@ export async function captureSnapshot(nonce: string) {
       request.contentDigest !== before.contentDigest)
   )
     throw new Error('STALE_CONTENT_REQUEST');
-  const data = await requestGraphQL('BlooikosHeaderFooter', config);
+  const data = await requestGraphQL(
+    before.profile === 'home-hero'
+      ? 'BlooikosHomeHero'
+      : 'BlooikosHeaderFooter',
+    config,
+  );
   const after = await version(endpoint.href);
   if (canonical(before) !== canonical(after))
     throw new Error('CONTENT_CHANGED_DURING_CAPTURE');
-  const operation = await readFile(
-    resolve('contracts/cms/v1/operations.graphql'),
-    'utf8',
-  );
+  const operation = await profileDocument(before.profile);
   if (
     sha256(operation) !== before.operationDigest ||
     sha256(canonical(data)) !== before.dataDigest
   )
     throw new Error('SNAPSHOT_DIGEST_MISMATCH');
-  validatePoc(data, { production: true, siteOrigin: process.env.SITE_ORIGIN });
+  const content = validateContent(before.profile, data, {
+    production: mode === 'production',
+    siteOrigin: process.env.SITE_ORIGIN,
+  });
+  return {
+    data,
+    metadata: before,
+    content,
+    config,
+    versionUrl: endpoint.href,
+    request,
+  };
+}
+
+export async function captureSnapshot(nonce: string) {
+  const {
+    data,
+    metadata: before,
+    config,
+    versionUrl,
+    request,
+  } = await readPublicSnapshot();
   await safeDirectory();
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const stat = await lstat(filename).catch(() => null);
@@ -102,7 +154,7 @@ export async function captureSnapshot(nonce: string) {
     requestId: request?.requestId ?? null,
     data,
     endpoint: config.endpoint,
-    versionUrl: endpoint.href,
+    versionUrl,
     siteOrigin: process.env.SITE_ORIGIN,
     sha: process.env.GITHUB_SHA ?? '',
     run: process.env.GITHUB_RUN_ID ?? '',
@@ -134,10 +186,11 @@ export async function readBuildSnapshot() {
     snapshot.sha !== (process.env.GITHUB_SHA ?? '') ||
     snapshot.run !== (process.env.GITHUB_RUN_ID ?? '') ||
     snapshot.attempt !== (process.env.GITHUB_RUN_ATTEMPT ?? '') ||
-    sha256(canonical(snapshot.data)) !== metadata.dataDigest
+    sha256(canonical(snapshot.data)) !== metadata.dataDigest ||
+    sha256(await profileDocument(metadata.profile)) !== metadata.operationDigest
   )
     throw new Error('SNAPSHOT_PROVENANCE_MISMATCH');
-  return validatePoc(snapshot.data, {
+  return validateContent(metadata.profile, snapshot.data, {
     production: true,
     siteOrigin: process.env.SITE_ORIGIN,
   });

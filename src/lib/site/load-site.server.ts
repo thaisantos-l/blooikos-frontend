@@ -1,15 +1,10 @@
 import 'server-only';
 import { cache } from 'react';
-import { queryGraphQL } from '../graphql/client.server';
-import { readBuildSnapshot } from './build-snapshot';
-import { validatePoc } from './validate-poc';
+import { readBuildSnapshot, readPublicSnapshot } from './build-snapshot';
 
-// Compartilhado no ciclo de renderização; não persiste conteúdo entre builds.
+// Uma fotografia para Home, Header e Footer; nenhum fetch no navegador.
 export const loadSite = cache(async () =>
   process.env.NODE_ENV === 'production'
     ? readBuildSnapshot()
-    : validatePoc(await queryGraphQL('BlooikosHeaderFooter'), {
-        production: false,
-        siteOrigin: process.env.SITE_ORIGIN,
-      }),
+    : (await readPublicSnapshot('development')).content,
 );

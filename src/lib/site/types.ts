@@ -38,9 +38,14 @@ export interface PocIssue {
   path: string;
 }
 export class PocValidationError extends Error {
-  constructor(public readonly issues: PocIssue[]) {
+  constructor(
+    public readonly issues: PocIssue[],
+    profile = 'poc',
+  ) {
     super(
-      'Conteúdo público incompatível com o perfil poc: ' +
+      'Conteúdo público incompatível com o perfil ' +
+        profile +
+        ': ' +
         issues.map((i) => i.code + ' em ' + i.path).join('; '),
     );
     this.name = 'PocValidationError';

@@ -2170,6 +2170,139 @@ export enum UsersConnectionSearchColumnEnum {
   Url = 'URL',
 }
 
+export type BlooikosHomeHeroQueryVariables = Exact<{ [key: string]: never }>;
+
+export type BlooikosHomeHeroQuery = {
+  blooikosSettings: {
+    blooikosSiteIdentity: {
+      brandName: string | null;
+      logo: {
+        node: {
+          id: string;
+          sourceUrl: string | null;
+          altText: string | null;
+          mimeType: string | null;
+          srcSet: string | null;
+          sizes: string | null;
+          mediaDetails: { width: number | null; height: number | null } | null;
+        };
+      } | null;
+      logoInverse: {
+        node: {
+          id: string;
+          sourceUrl: string | null;
+          altText: string | null;
+          mimeType: string | null;
+          srcSet: string | null;
+          sizes: string | null;
+          mediaDetails: { width: number | null; height: number | null } | null;
+        };
+      } | null;
+    } | null;
+    blooikosSiteContact: {
+      phone: string | null;
+      email: string | null;
+      instagramUrl: string | null;
+      address: string | null;
+      contactCompany: {
+        node: { id: string; title: string | null } | Record<PropertyKey, never>;
+      } | null;
+    } | null;
+    blooikosSiteFooter: {
+      footerDescription: string | null;
+      copyrightHolder: string | null;
+      footerCompanies: {
+        nodes: Array<
+          | {
+              id: string;
+              slug: string | null;
+              title: string | null;
+              blooikosCompanyFields: {
+                shortName: string | null;
+                cta: {
+                  title: string | null;
+                  url: string | null;
+                  target: string | null;
+                } | null;
+              } | null;
+            }
+          | Record<PropertyKey, never>
+        >;
+        pageInfo: { hasNextPage: boolean; endCursor: string | null };
+      } | null;
+    } | null;
+  } | null;
+  primaryMenu: {
+    nodes: Array<{
+      id: string;
+      label: string | null;
+      url: string | null;
+      target: string | null;
+      parentId: string | null;
+      order: number | null;
+    }>;
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  } | null;
+  footerMenu: {
+    nodes: Array<{
+      id: string;
+      label: string | null;
+      url: string | null;
+      target: string | null;
+      parentId: string | null;
+      order: number | null;
+    }>;
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  } | null;
+  home:
+    | { __typename: 'BlooikosCompany' }
+    | { __typename: 'Category' }
+    | { __typename: 'Comment' }
+    | { __typename: 'ContentType' }
+    | { __typename: 'MediaItem' }
+    | {
+        __typename: 'Page';
+        id: string;
+        isFrontPage: boolean;
+        blooikosHomeHero: {
+          eyebrow: string | null;
+          titleBefore: string | null;
+          titleHighlight: string | null;
+          titleAfter: string | null;
+          description: string | null;
+          background: {
+            node: {
+              id: string;
+              sourceUrl: string | null;
+              altText: string | null;
+              mimeType: string | null;
+              srcSet: string | null;
+              sizes: string | null;
+              mediaDetails: {
+                width: number | null;
+                height: number | null;
+              } | null;
+            };
+          } | null;
+          primaryCta: {
+            title: string | null;
+            url: string | null;
+            target: string | null;
+          } | null;
+          secondaryCta: {
+            title: string | null;
+            url: string | null;
+            target: string | null;
+          } | null;
+        } | null;
+      }
+    | { __typename: 'Post' }
+    | { __typename: 'PostFormat' }
+    | { __typename: 'Tag' }
+    | { __typename: 'User' }
+    | null;
+};
+
 export type BlooikosHeaderFooterQueryVariables = Exact<{
   [key: string]: never;
 }>;

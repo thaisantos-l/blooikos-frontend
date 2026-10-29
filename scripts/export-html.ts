@@ -96,7 +96,17 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
       }
     }
     for (const preload of document.querySelectorAll('link[as="image"]')) {
-      mediaSource(preload.getAttribute('href') ?? '', true);
+      const href = preload.getAttribute('href');
+      if (href) mediaSource(href, true);
+      else {
+        for (const entry of (preload.getAttribute('imagesrcset') ?? '').split(
+          ',',
+        )) {
+          const candidate = entry.trim().match(/^(\S+)\s+[1-9][0-9]*w$/);
+          if (!candidate) fail();
+          mediaSource(candidate![1], true);
+        }
+      }
     }
     for (const placement of ['header', 'footer']) {
       const images = document.querySelectorAll(placement + ' img');

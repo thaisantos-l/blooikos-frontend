@@ -27,9 +27,10 @@ export const uuid =
   /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
 export const decimal = /^[1-9][0-9]{0,29}$/;
 const hash = /^[a-f0-9]{64}$/;
+export type ContentProfile = 'poc' | 'home-hero';
 export interface ContentVersion {
   protocolVersion: '1';
-  profile: 'poc';
+  profile: ContentProfile;
   epoch: string;
   contentVersion: string;
   contentDigest: string;
@@ -45,7 +46,7 @@ export function contentVersion(value: unknown): ContentVersion {
     typeof row[key] === 'string' && expression.test(row[key]);
   if (
     row.protocolVersion !== '1' ||
-    row.profile !== 'poc' ||
+    !['poc', 'home-hero'].includes(String(row.profile)) ||
     !matches('epoch', uuid) ||
     !matches('contentVersion', decimal) ||
     !matches('mediaRevision', /^(0|[1-9][0-9]{0,29})$/) ||
@@ -60,7 +61,7 @@ export function contentVersion(value: unknown): ContentVersion {
     sha256(
       canonical({
         protocolVersion: '1',
-        profile: 'poc',
+        profile: result.profile,
         dataDigest: result.dataDigest,
         operationDigest: result.operationDigest,
         mediaRevision: result.mediaRevision,

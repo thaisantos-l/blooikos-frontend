@@ -46,7 +46,7 @@ export async function verifyExport(root = resolve('out')) {
     if (/\.woff2?$/.test(file)) metrics.fontBytes += bytes.length;
     if (
       /\.(html|js|css|txt|json)$/.test(file) &&
-      /WORDPRESS_GRAPHQL_URL|HOSTINGER_SSH_KEY|BlooikosHeaderFooter|BlooikosFoundationSmoke|\/Applications\/XAMPP|SPEC05_GALLERY_ONLY|figma\.com\/api\/mcp\/asset|makeproxy-c\.figma\.site/.test(
+      /WORDPRESS_GRAPHQL_URL|HOSTINGER_SSH_KEY|BlooikosHeaderFooter|BlooikosHomeHero|BlooikosFoundationSmoke|\/Applications\/XAMPP|SPEC05_GALLERY_ONLY|figma\.com\/api\/mcp\/asset|makeproxy-c\.figma\.site/.test(
         bytes.toString(),
       )
     )
