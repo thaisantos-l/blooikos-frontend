@@ -6,3 +6,9 @@ pnpm-lock.yaml
 contracts/cms/v1/
 src/lib/graphql/generated/
 src/assets/fonts/*LICENSE.txt
+
+# Pacotes e plano operacional local
+/.deploy/
+/.deploy-plan.json
+__pycache__/
+*.pyc
