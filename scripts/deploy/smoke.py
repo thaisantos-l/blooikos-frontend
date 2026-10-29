@@ -61,7 +61,8 @@ def smoke(origin, manifest, files, media=True):
     require({'conteudo', 'quem-somos', 'empresas', 'servicos', 'indicadores', 'contato'} <= set(shell.ids)
             and len(shell.ids) == len(set(shell.ids)) and 'noindex' in shell.robots and
             'nofollow' in shell.robots and len(shell.images) == 2, 'SHELL_SMOKE_FAILED')
-    status, _, body = request(origin + '/blooikos-release.json')
+    status, headers, body = request(origin + '/blooikos-release.json')
+    require('no-store' in headers.get('cache-control', '') and (manifest['schemaVersion'] == 1 or 'noindex' in headers.get('x-robots-tag', '')), 'MARKER_CACHE_MISMATCH')
     require(status == 200 and body == files['blooikos-release.json'], 'PUBLIC_RELEASE_MISMATCH')
     status, _, body = request(origin + '/blooikos-route-that-does-not-exist/')
     require(status == 404 and body == files['404.html'], 'HTTP_404_FAILED')

@@ -6,13 +6,15 @@ BEGIN = '# BEGIN BLOOIKOS STATIC V1\n'
 END = '# END BLOOIKOS STATIC V1\n'
 STATIC_POLICY = b'''Options -Indexes -MultiViews
 Header always set Cache-Control "no-store, max-age=0"
+Header always set X-Robots-Tag "noindex"
 Header always set X-Content-Type-Options "nosniff"
 AddType text/javascript .js
 AddType text/css .css
 AddType font/woff2 .woff2
 AddType font/woff .woff
 '''
-ASSET_POLICY = STATIC_POLICY.replace(b'no-store, max-age=0', b'public, max-age=31536000, immutable')
+LEGACY_STATIC_POLICY = STATIC_POLICY.replace(b'Header always set X-Robots-Tag "noindex"\n', b'')
+ASSET_POLICY = LEGACY_STATIC_POLICY.replace(b'no-store, max-age=0', b'public, max-age=31536000, immutable')
 
 
 def compose(original, release, files, origin):
@@ -21,7 +23,8 @@ def compose(original, release, files, origin):
     public_paths = ['', *[n for n in files if not n.startswith('_next/static/')]]
     public_paths += [n[:-len('index.html')] for n in files if n.endswith('/index.html')]
     public_pattern = '^(?:' + '|'.join(re.escape(n) for n in public_paths) + '|_next/static/.*)$'
-    lines = [BEGIN.rstrip(), 'RewriteEngine On',
+    lines = [BEGIN.rstrip(), '<Files "blooikos-release.json">',
+             'Header always set X-Robots-Tag "noindex"', '</Files>', 'RewriteEngine On',
              'RewriteRule ^(?:cms|wp-content|\\.well-known)(?:/|$) - [L]',
              'RewriteCond %{HTTPS} !=on',
              f'RewriteRule {public_pattern} {origin}%{{REQUEST_URI}} [R=308,L]',

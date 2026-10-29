@@ -31,3 +31,6 @@ Thumbs.db
 /.deploy-plan.json
 __pycache__/
 *.pyc
+
+# Snapshot privado de um único build
+/.build-snapshot/

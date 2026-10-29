@@ -58,7 +58,7 @@ def context(env):
     event = env.get('GITHUB_EVENT_NAME')
     require(event in ('push', 'workflow_dispatch'), 'UNTRUSTED_EVENT')
     operation = env.get('DEPLOY_OPERATION') or 'deploy'
-    require(operation in ('deploy', 'bootstrap', 'rollback', 'recover'), 'INVALID_OPERATION')
+    require(operation in ('deploy', 'bootstrap', 'rollback', 'recover', 'resume'), 'INVALID_OPERATION')
     require(event == 'workflow_dispatch' or operation == 'deploy', 'INVALID_EVENT_OPERATION')
     target = env.get('DEPLOY_RELEASE_ID', '')
     if operation == 'rollback':
@@ -69,8 +69,19 @@ def context(env):
     run, attempt = env.get('GITHUB_RUN_ID', ''), env.get('GITHUB_RUN_ATTEMPT', '')
     require(re.fullmatch(r'[0-9a-f]{40}', sha) and re.fullmatch(r'[1-9][0-9]*', run) and
             re.fullmatch(r'[1-9][0-9]*', attempt), 'INVALID_PROVENANCE')
-    return dict(operation=operation, target=target, sha=sha, run=run, attempt=attempt,
+    request = content_request(env, event, operation)
+    return dict(contentRequest=request, event=event, operation=operation, target=target, sha=sha, run=run, attempt=attempt,
                 releaseId=f'{sha}-{run}-{attempt}', repository=REPOSITORY)
+
+
+def content_request(env, event, operation):
+    values = [env.get(name, '') for name in ('CONTENT_EPOCH', 'CONTENT_VERSION', 'CONTENT_DIGEST', 'CONTENT_REQUEST_ID')]
+    if not any(values):
+        return None
+    require(all(values) and event == 'workflow_dispatch' and operation == 'deploy', 'INVALID_CONTENT_REQUEST')
+    uuid_pattern = r'[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}'
+    require(re.fullmatch(uuid_pattern, values[0]) and re.fullmatch(r'[1-9][0-9]{0,29}', values[1]) and re.fullmatch(r'[a-f0-9]{64}', values[2]) and re.fullmatch(uuid_pattern, values[3]), 'INVALID_CONTENT_REQUEST')
+    return dict(epoch=values[0], contentVersion=values[1], contentDigest=values[2], requestId=values[3])
 
 
 def safe_path(value):
