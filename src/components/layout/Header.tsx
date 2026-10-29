@@ -11,6 +11,13 @@ export function Header({
   site: SiteChrome;
   variant?: 'solid' | 'hero';
 }) {
+  if (
+    !site.brandName &&
+    !site.logo &&
+    !site.logoInverse &&
+    !site.primaryNavigation.length
+  )
+    return <header />;
   return (
     <header
       className={`${styles.header} ${variant === 'hero' ? styles.hero : ''}`}
@@ -21,8 +28,12 @@ export function Header({
           logo={site.logoInverse ?? site.logo}
           placement="header"
         />
-        <PrimaryNavigation links={site.primaryNavigation} />
-        <MobileNavigation links={site.primaryNavigation} />
+        {site.primaryNavigation.length ? (
+          <>
+            <PrimaryNavigation links={site.primaryNavigation} />
+            <MobileNavigation links={site.primaryNavigation} />
+          </>
+        ) : null}
       </Container>
     </header>
   );

@@ -60,7 +60,7 @@ def smoke(origin, manifest, files, media=True):
     shell.feed(body.decode())
     require({'conteudo', 'quem-somos', 'empresas', 'servicos', 'indicadores', 'contato'} <= set(shell.ids)
             and len(shell.ids) == len(set(shell.ids)) and 'noindex' in shell.robots and
-            'nofollow' in shell.robots and len(shell.images) == (3 if manifest.get('content', {}).get('profile') == 'home-hero' else 2), 'SHELL_SMOKE_FAILED')
+            'nofollow' in shell.robots and len(shell.images) <= 3, 'SHELL_SMOKE_FAILED')
     status, headers, body = request(origin + '/blooikos-release.json')
     require('no-store' in headers.get('cache-control', '') and (manifest['schemaVersion'] == 1 or 'noindex' in headers.get('x-robots-tag', '')), 'MARKER_CACHE_MISMATCH')
     require(status == 200 and body == files['blooikos-release.json'], 'PUBLIC_RELEASE_MISMATCH')

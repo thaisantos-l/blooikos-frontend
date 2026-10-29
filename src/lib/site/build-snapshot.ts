@@ -9,7 +9,6 @@ import {
   sha256,
 } from './content-version';
 import { validateContent } from './validate-hero';
-import type { ContentProfile } from './content-version';
 
 const directory = resolve('.build-snapshot');
 const filename = resolve(directory, 'poc.json');
@@ -53,19 +52,8 @@ async function version(url: string) {
   }
   return contentVersion(JSON.parse(Buffer.concat(chunks).toString('utf8')));
 }
-async function profileDocument(profile: ContentProfile) {
-  const base = await readFile(
-    resolve('contracts/cms/v1/operations.graphql'),
-    'utf8',
-  );
-  return profile === 'home-hero'
-    ? base +
-        '\n' +
-        (await readFile(
-          resolve('contracts/rebuild/v1/home-hero.graphql'),
-          'utf8',
-        ))
-    : base;
+async function profileDocument() {
+  return readFile(resolve('contracts/cms/v1/operations.graphql'), 'utf8');
 }
 
 export async function readPublicSnapshot(
@@ -103,22 +91,17 @@ export async function readPublicSnapshot(
       request.contentDigest !== before.contentDigest)
   )
     throw new Error('STALE_CONTENT_REQUEST');
-  const data = await requestGraphQL(
-    before.profile === 'home-hero'
-      ? 'BlooikosHomeHero'
-      : 'BlooikosHeaderFooter',
-    config,
-  );
+  const data = await requestGraphQL('BlooikosHome', config);
   const after = await version(endpoint.href);
   if (canonical(before) !== canonical(after))
     throw new Error('CONTENT_CHANGED_DURING_CAPTURE');
-  const operation = await profileDocument(before.profile);
+  const operation = await profileDocument();
   if (
     sha256(operation) !== before.operationDigest ||
     sha256(canonical(data)) !== before.dataDigest
   )
     throw new Error('SNAPSHOT_DIGEST_MISMATCH');
-  const content = validateContent(before.profile, data, {
+  const content = validateContent(data, {
     production: mode === 'production',
     siteOrigin: process.env.SITE_ORIGIN,
   });
@@ -187,10 +170,10 @@ export async function readBuildSnapshot() {
     snapshot.run !== (process.env.GITHUB_RUN_ID ?? '') ||
     snapshot.attempt !== (process.env.GITHUB_RUN_ATTEMPT ?? '') ||
     sha256(canonical(snapshot.data)) !== metadata.dataDigest ||
-    sha256(await profileDocument(metadata.profile)) !== metadata.operationDigest
+    sha256(await profileDocument()) !== metadata.operationDigest
   )
     throw new Error('SNAPSHOT_PROVENANCE_MISMATCH');
-  return validateContent(metadata.profile, snapshot.data, {
+  return validateContent(snapshot.data, {
     production: true,
     siteOrigin: process.env.SITE_ORIGIN,
   });

@@ -8,56 +8,75 @@ export function Footer({ site }: { site: SiteChrome }) {
   const hasContact = Boolean(
     contact.phone || contact.email || contact.instagram || contact.address,
   );
+  const hasIdentity = Boolean(
+    site.brandName || site.logo || site.logoInverse || site.description,
+  );
+  if (
+    !hasIdentity &&
+    !site.footerNavigation.length &&
+    !site.companies.length &&
+    !hasContact &&
+    !site.copyrightHolder
+  )
+    return <footer />;
   return (
     <footer className={styles.footer}>
       <Container>
         <div className={styles.columns}>
-          <div className={styles.identity}>
-            <BrandLink
-              name={site.brandName}
-              logo={site.logoInverse ?? site.logo}
-              placement="footer"
-            />
-            <p className={styles.description}>{site.description}</p>
-          </div>
-          <nav aria-label="Grupo — rodapé">
-            <h2 className={styles.heading}>Grupo</h2>
-            <ul className={styles.list}>
-              {site.footerNavigation.map((link) => (
-                <li key={link.id}>
-                  <TextLink
-                    typography="footer"
-                    tone="inverse"
-                    href={link.href}
-                    target={link.target}
-                  >
-                    {link.label}
-                  </TextLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <nav aria-label="Empresas — rodapé">
-            <h2 className={styles.heading}>Empresas</h2>
-            <ul className={styles.list}>
-              {site.companies.map((company) => (
-                <li key={company.id}>
-                  {company.link ? (
+          {hasIdentity ? (
+            <div className={styles.identity}>
+              <BrandLink
+                name={site.brandName}
+                logo={site.logoInverse ?? site.logo}
+                placement="footer"
+              />
+              {site.description ? (
+                <p className={styles.description}>{site.description}</p>
+              ) : null}
+            </div>
+          ) : null}
+          {site.footerNavigation.length ? (
+            <nav aria-label="Grupo — rodapé">
+              <h2 className={styles.heading}>Grupo</h2>
+              <ul className={styles.list}>
+                {site.footerNavigation.map((link) => (
+                  <li key={link.id}>
                     <TextLink
                       typography="footer"
                       tone="inverse"
-                      href={company.link.href}
-                      target={company.link.target}
+                      href={link.href}
+                      target={link.target}
                     >
-                      {company.name}
+                      {link.label}
                     </TextLink>
-                  ) : (
-                    <span className={styles.company}>{company.name}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </nav>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
+          {site.companies.length ? (
+            <nav aria-label="Empresas — rodapé">
+              <h2 className={styles.heading}>Empresas</h2>
+              <ul className={styles.list}>
+                {site.companies.map((company) => (
+                  <li key={company.id}>
+                    {company.link ? (
+                      <TextLink
+                        typography="footer"
+                        tone="inverse"
+                        href={company.link.href}
+                        target={company.link.target}
+                      >
+                        {company.name}
+                      </TextLink>
+                    ) : (
+                      <span className={styles.company}>{company.name}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
           {hasContact ? (
             <section aria-labelledby="footer-contact-title">
               <h2 id="footer-contact-title" className={styles.heading}>
@@ -104,9 +123,11 @@ export function Footer({ site }: { site: SiteChrome }) {
             </section>
           ) : null}
         </div>
-        <p className={styles.copyright}>
-          © {site.year} {site.copyrightHolder}. Todos os direitos reservados.
-        </p>
+        {site.copyrightHolder ? (
+          <p className={styles.copyright}>
+            © {site.year} {site.copyrightHolder}. Todos os direitos reservados.
+          </p>
+        ) : null}
       </Container>
     </footer>
   );

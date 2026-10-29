@@ -10,8 +10,6 @@ import { SkipLink } from '@/components/accessibility/SkipLink';
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Blooikos — Novo site em preparação',
-  description: 'Estamos preparando o novo site da Blooikos.',
   robots: { index: false, follow: false },
 };
 

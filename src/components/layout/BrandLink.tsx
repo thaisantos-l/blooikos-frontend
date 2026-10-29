@@ -8,23 +8,28 @@ export function BrandLink({
   placement,
 }: {
   name: string;
-  logo: SiteImage;
+  logo?: SiteImage;
   placement: 'header' | 'footer';
 }) {
+  if (!name && !logo) return null;
   return (
     <TextLink
       href="/"
-      aria-label={name + ' — início'}
+      aria-label={name ? name + ' — início' : logo?.alt || 'Início'}
       className={`${styles.brand} ${styles[placement]}`}
     >
       {/* O link já tem nome; a imagem é decorativa neste uso. O alt editorial permanece no modelo. */}
-      <ResponsiveImage
-        src={logo.src}
-        alt=""
-        width={logo.width}
-        height={logo.height}
-        loading={placement === 'header' ? 'eager' : 'lazy'}
-      />
+      {logo ? (
+        <ResponsiveImage
+          src={logo.src}
+          alt=""
+          width={logo.width}
+          height={logo.height}
+          loading={placement === 'header' ? 'eager' : 'lazy'}
+        />
+      ) : (
+        name
+      )}
     </TextLink>
   );
 }

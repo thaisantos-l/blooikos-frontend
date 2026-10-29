@@ -44,15 +44,7 @@ export async function contractArtifacts(root = process.cwd()) {
   }
   const schemaText = await read('contracts/cms/v1/schema.graphql');
   const documentText = await read('src/lib/graphql/operations.graphql');
-  const extraText = await read('contracts/rebuild/v1/home-hero.graphql');
-  const extra = parse(extraText);
-  if (
-    extra.definitions.length !== 1 ||
-    extra.definitions[0].kind !== Kind.OPERATION_DEFINITION ||
-    extra.definitions[0].name?.value !== 'BlooikosHomeHero'
-  )
-    throw new Error('Documento adicional do Hero inválido.');
-  const document = parse(documentText + '\n' + extraText);
+  const document = parse(documentText);
   const errors = validate(buildSchema(schemaText), document);
   if (errors.length)
     throw new Error(`Operações incompatíveis: ${errors[0].message}`);
@@ -61,9 +53,7 @@ export async function contractArtifacts(root = process.cwd()) {
     (node) =>
       !(
         node.kind === Kind.OPERATION_DEFINITION &&
-        ['BlooikosFoundationSmoke', 'BlooikosHomeHero'].includes(
-          node.name?.value ?? '',
-        )
+        node.name?.value === 'BlooikosFoundationSmoke'
       ),
   );
   if (
@@ -75,7 +65,7 @@ export async function contractArtifacts(root = process.cwd()) {
   const operations = separateOperations(document);
   if (
     Object.keys(operations).sort().join(',') !==
-      'BlooikosFoundationSmoke,BlooikosHeaderFooter,BlooikosHome,BlooikosHomeHero' ||
+      'BlooikosFoundationSmoke,BlooikosHeaderFooter,BlooikosHome' ||
     print(operations.BlooikosFoundationSmoke) !==
       'query BlooikosFoundationSmoke {\n  __typename\n}'
   ) {

@@ -1,10 +1,19 @@
 import 'server-only';
 import { cache } from 'react';
-import { readBuildSnapshot, readPublicSnapshot } from './build-snapshot';
+import { readBuildSnapshot } from './build-snapshot';
+import { requestGraphQL } from '../graphql/transport';
+import { parseGraphQLConfig } from '../env';
+import { validateContent } from './validate-hero';
 
-// Uma fotografia para Home, Header e Footer; nenhum fetch no navegador.
+// Dev lê o CMS a cada renderização; somente o build usa a captura persistida.
 export const loadSite = cache(async () =>
   process.env.NODE_ENV === 'production'
     ? readBuildSnapshot()
-    : (await readPublicSnapshot('development')).content,
+    : validateContent(
+        await requestGraphQL(
+          'BlooikosHome',
+          parseGraphQLConfig(process.env, 'development'),
+        ),
+        { siteOrigin: process.env.SITE_ORIGIN },
+      ),
 );

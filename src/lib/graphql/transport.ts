@@ -5,14 +5,12 @@ import type {
   BlooikosFoundationSmokeQuery,
   BlooikosHeaderFooterQuery,
   BlooikosHomeQuery,
-  BlooikosHomeHeroQuery,
 } from './generated/types';
 
 export interface OperationData {
   BlooikosFoundationSmoke: BlooikosFoundationSmokeQuery;
   BlooikosHeaderFooter: BlooikosHeaderFooterQuery;
   BlooikosHome: BlooikosHomeQuery;
-  BlooikosHomeHero: BlooikosHomeHeroQuery;
 }
 
 export const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
