@@ -58,6 +58,10 @@ export async function verifyExport(root = resolve('out')) {
   );
   for (const file of ['index.html', '404.html']) {
     const html = await readFile(join(root, file), 'utf8');
+    if (/(?:src|href)="\/icons\/arrow-right\.svg"/.test(html)) {
+      const arrow = await readFile(join(root, 'icons/arrow-right.svg'));
+      if (!arrow.length) throw new Error('Asset LinkArrow vazio no export.');
+    }
     const robots = [...html.matchAll(/<meta\b[^>]*name="robots"[^>]*>/g)]
       .map((m) => m[0])
       .join(' ');

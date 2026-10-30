@@ -8,6 +8,7 @@ import {
 } from './normalize';
 import type { SiteChrome, SiteImage, SiteLink } from './types';
 import { validatePoc } from './validate-poc';
+import { normalizeAbout, type AboutContent } from './normalize-about';
 
 export interface HeroContent {
   eyebrow: string;
@@ -22,6 +23,7 @@ export interface HeroContent {
 export interface SiteContent {
   site: SiteChrome;
   hero: HeroContent;
+  about: AboutContent;
 }
 type Options = Parameters<typeof validatePoc>[1];
 export function validateHero(
@@ -82,5 +84,6 @@ export function validateContent(
   return {
     site: validatePoc(data, options),
     hero: validateHero(data, options),
+    about: normalizeAbout(data, options),
   };
 }
