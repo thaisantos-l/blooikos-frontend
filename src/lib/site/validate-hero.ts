@@ -9,6 +9,10 @@ import {
 import type { SiteChrome, SiteImage, SiteLink } from './types';
 import { validatePoc } from './validate-poc';
 import { normalizeAbout, type AboutContent } from './normalize-about';
+import {
+  normalizeInstitutional,
+  type InstitutionalContent,
+} from './normalize-institutional';
 
 export interface HeroContent {
   eyebrow: string;
@@ -24,6 +28,7 @@ export interface SiteContent {
   site: SiteChrome;
   hero: HeroContent;
   about: AboutContent;
+  institutional: InstitutionalContent;
 }
 type Options = Parameters<typeof validatePoc>[1];
 export function validateHero(
@@ -85,5 +90,6 @@ export function validateContent(
     site: validatePoc(data, options),
     hero: validateHero(data, options),
     about: normalizeAbout(data, options),
+    institutional: normalizeInstitutional(data, options),
   };
 }
