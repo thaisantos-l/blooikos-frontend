@@ -13,6 +13,10 @@ import {
   normalizeInstitutional,
   type InstitutionalContent,
 } from './normalize-institutional';
+import {
+  normalizeIndicators,
+  type IndicatorsContent,
+} from './normalize-indicators';
 
 export interface HeroContent {
   eyebrow: string;
@@ -29,6 +33,7 @@ export interface SiteContent {
   hero: HeroContent;
   about: AboutContent;
   institutional: InstitutionalContent;
+  indicators: IndicatorsContent;
 }
 type Options = Parameters<typeof validatePoc>[1];
 export function validateHero(
@@ -91,5 +96,6 @@ export function validateContent(
     hero: validateHero(data, options),
     about: normalizeAbout(data, options),
     institutional: normalizeInstitutional(data, options),
+    indicators: normalizeIndicators(data),
   };
 }
