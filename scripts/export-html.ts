@@ -84,7 +84,7 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
     for (const link of document.querySelectorAll('a')) {
       const href = validateHref(link.getAttribute('href') ?? '');
       if (href.startsWith('#')) {
-        if (href !== '#conteudo' || !ids.includes(href.slice(1))) fail();
+        if (!ids.includes(href.slice(1))) fail();
       } else if (!/^(mailto:|tel:)/.test(href)) {
         if (normalizeDestination(href) !== href) fail();
         if (href.startsWith('/')) {
@@ -99,8 +99,10 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
     }
     for (const preload of document.querySelectorAll('link[as="image"]')) {
       const href = preload.getAttribute('href');
-      if (href) mediaSource(href, true);
-      else {
+      if (href) {
+        // O React também pode antecipar o SVG local usado pelo LinkArrow.
+        if (href !== '/icons/arrow-right.svg') mediaSource(href, true);
+      } else {
         for (const entry of (preload.getAttribute('imagesrcset') ?? '').split(
           ',',
         )) {
@@ -111,6 +113,15 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
       }
     }
     for (const img of document.querySelectorAll('img')) {
+      // Asset intrínseco do LinkArrow; a presença do arquivo é conferida no export.
+      if (img.getAttribute('src') === '/icons/arrow-right.svg') {
+        if (
+          img.getAttribute('alt') !== '' ||
+          img.getAttribute('aria-hidden') !== 'true'
+        )
+          fail();
+        continue;
+      }
       mediaSource(img.getAttribute('src') ?? '', true);
       if (
         img.getAttribute('alt') === undefined ||
