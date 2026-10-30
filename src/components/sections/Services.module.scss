@@ -1,0 +1,103 @@
+.section {
+  padding-block: clamp(3rem, 8.3vw, 7.5rem);
+  color: var(--color-text);
+}
+
+.light {
+  background: var(--color-surface);
+
+  .card {
+    background: var(--color-surface-muted);
+  }
+}
+
+.muted {
+  background: var(--color-surface-muted);
+
+  .card {
+    background: var(--color-surface);
+  }
+}
+
+.presentation {
+  max-width: 43.125rem;
+  overflow-wrap: anywhere;
+}
+
+.heading > p,
+.presentation > .eyebrow {
+  text-transform: none;
+}
+
+.presentation > .eyebrow {
+  margin: 0;
+}
+
+.presentation > .description {
+  line-height: 1.56;
+  white-space: pre-line;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.presentation + .cards {
+  margin-top: clamp(2rem, 3.34vw, 3rem);
+}
+
+.card {
+  min-width: 0;
+  padding: clamp(1.5rem, 2.23vw, 2rem);
+  border-radius: var(--radius-surface);
+  overflow-wrap: anywhere;
+}
+
+.card > .icon {
+  width: 2.375rem;
+  height: 2.375rem;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-heading);
+  line-height: 1.56;
+}
+
+.cardDescription {
+  margin: 0;
+  color: #6b6b6b;
+  font-size: 0.875rem;
+  line-height: 1.56;
+  white-space: pre-line;
+}
+
+.card > * + * {
+  margin-top: var(--space-4);
+}
+
+.cardTitle + .cardDescription {
+  margin-top: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

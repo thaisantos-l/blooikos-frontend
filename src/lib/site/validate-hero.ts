@@ -17,6 +17,7 @@ import {
   normalizeIndicators,
   type IndicatorsContent,
 } from './normalize-indicators';
+import { normalizeServices, type ServicesContent } from './normalize-services';
 
 export interface HeroContent {
   eyebrow: string;
@@ -34,6 +35,7 @@ export interface SiteContent {
   about: AboutContent;
   institutional: InstitutionalContent;
   indicators: IndicatorsContent;
+  services: ServicesContent;
 }
 type Options = Parameters<typeof validatePoc>[1];
 export function validateHero(
@@ -97,5 +99,6 @@ export function validateContent(
     about: normalizeAbout(data, options),
     institutional: normalizeInstitutional(data, options),
     indicators: normalizeIndicators(data),
+    services: normalizeServices(data, options),
   };
 }
