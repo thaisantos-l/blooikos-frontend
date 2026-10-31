@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { mediaSource, normalizeDestination } from '../src/lib/site/normalize';
 import { POC_IDS } from '../src/lib/site/anchors';
 import { validateHref } from '../src/lib/links';
+import contactAssets from '../src/lib/contact/assets.json';
 
 interface Element {
   getAttribute(name: string): string | undefined;
@@ -113,6 +114,19 @@ export function verifyShell(homeHtml: string, errorHtml: string) {
       }
     }
     for (const img of document.querySelectorAll('img')) {
+      const src = img.getAttribute('src') ?? '';
+      if (Object.hasOwn(contactAssets, src)) {
+        const asset = contactAssets[src as keyof typeof contactAssets];
+        if (
+          img.getAttribute('alt') !== '' ||
+          img.getAttribute('loading') !== 'lazy' ||
+          img.getAttribute('decoding') !== 'async' ||
+          Number(img.getAttribute('width')) !== asset.width ||
+          Number(img.getAttribute('height')) !== asset.height
+        )
+          fail();
+        continue;
+      }
       // Asset intrínseco do LinkArrow; a presença do arquivo é conferida no export.
       if (img.getAttribute('src') === '/icons/arrow-right.svg') {
         if (

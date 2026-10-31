@@ -2,6 +2,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import { extname, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
+import contactAssets from '../src/lib/contact/assets.json';
 import budget from '../performance-budget.json';
 import { verifyShell } from './export-html';
 
@@ -17,6 +19,11 @@ export async function verifyExport(root = resolve('out')) {
     }
   }
   await walk(root);
+  for (const [path, asset] of Object.entries(contactAssets)) {
+    const bytes = await readFile(join(root, path));
+    if (createHash('sha256').update(bytes).digest('hex') !== asset.sha256)
+      throw new Error(`Asset original de Contato ausente ou alterado: ${path}`);
+  }
   const metrics = {
     javascriptGzipBytes: 0,
     cssGzipBytes: 0,
