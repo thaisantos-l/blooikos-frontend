@@ -191,10 +191,11 @@ jobs:
           set -euo pipefail
 
           rsync \
-            -az --checksum \
+            -az --checksum --no-times \
             --delete \
             --delay-updates \
             --exclude='cms/' \
+            --exclude='blooikos-static/' \
             --exclude='.well-known/' \
             --exclude='.htaccess' \
             -e "ssh -F /dev/null \
