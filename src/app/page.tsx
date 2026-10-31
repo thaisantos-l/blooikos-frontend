@@ -5,14 +5,23 @@ import { InstitutionalVisual } from '@/components/sections/InstitutionalVisual';
 import { Indicators } from '@/components/sections/Indicators';
 import { Services } from '@/components/sections/Services';
 import { Companies } from '@/components/sections/Companies';
+import { Contact } from '@/components/sections/Contact';
+import { contactEndpoint } from '@/lib/contact/endpoint.server';
 import { hasHeroContent } from '@/lib/site/validate-hero';
 import styles from './page.module.scss';
 import { loadSite } from '@/lib/site/load-site.server';
-import { POC_SECTIONS } from '@/lib/site/anchors';
 
 export default async function Home() {
-  const { site, hero, about, institutional, indicators, services, companies } =
-    await loadSite();
+  const {
+    site,
+    hero,
+    about,
+    institutional,
+    indicators,
+    services,
+    companies,
+    contact,
+  } = await loadSite();
   return (
     <>
       <Header site={site} variant={hasHeroContent(hero) ? 'hero' : 'solid'} />
@@ -23,15 +32,7 @@ export default async function Home() {
         <Indicators indicators={indicators} />
         <Services services={services} />
         <Companies companies={companies} />
-        {POC_SECTIONS.filter(
-          ({ id }) =>
-            id !== 'quem-somos' &&
-            id !== 'indicadores' &&
-            id !== 'servicos' &&
-            id !== 'empresas',
-        ).map(({ id }) => (
-          <div key={id} id={id} tabIndex={-1} />
-        ))}
+        <Contact contact={contact} endpoint={contactEndpoint()} />
       </main>
     </>
   );

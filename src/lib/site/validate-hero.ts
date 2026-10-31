@@ -8,6 +8,7 @@ import {
 } from './normalize';
 import type { SiteChrome, SiteImage, SiteLink } from './types';
 import { validatePoc } from './validate-poc';
+import { normalizeContact, type ContactContent } from './normalize-contact';
 import { normalizeAbout, type AboutContent } from './normalize-about';
 import {
   normalizeInstitutional,
@@ -41,6 +42,7 @@ export interface SiteContent {
   indicators: IndicatorsContent;
   services: ServicesContent;
   companies: CompaniesContent;
+  contact: ContactContent;
 }
 type Options = Parameters<typeof validatePoc>[1];
 export function validateHero(
@@ -98,13 +100,15 @@ export function validateContent(
   data: unknown,
   options: Options = {},
 ): SiteContent {
+  const site = validatePoc(data, options);
   return {
-    site: validatePoc(data, options),
+    site,
     hero: validateHero(data, options),
     about: normalizeAbout(data, options),
     institutional: normalizeInstitutional(data, options),
     indicators: normalizeIndicators(data),
     services: normalizeServices(data, options),
     companies: normalizeCompanies(data, options),
+    contact: normalizeContact(data, site),
   };
 }
