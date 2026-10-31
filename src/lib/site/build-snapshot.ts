@@ -9,6 +9,7 @@ import {
   sha256,
 } from './content-version';
 import { validateContent } from './validate-hero';
+import { versionMedia } from './version-media';
 
 const directory = resolve('.build-snapshot');
 const filename = resolve(directory, 'poc.json');
@@ -108,7 +109,7 @@ export async function readPublicSnapshot(
   return {
     data,
     metadata: before,
-    content,
+    content: versionMedia(content, before),
     config,
     versionUrl: endpoint.href,
     request,
@@ -173,8 +174,11 @@ export async function readBuildSnapshot() {
     sha256(await profileDocument()) !== metadata.operationDigest
   )
     throw new Error('SNAPSHOT_PROVENANCE_MISMATCH');
-  return validateContent(snapshot.data, {
-    production: true,
-    siteOrigin: process.env.SITE_ORIGIN,
-  });
+  return versionMedia(
+    validateContent(snapshot.data, {
+      production: true,
+      siteOrigin: process.env.SITE_ORIGIN,
+    }),
+    metadata,
+  );
 }

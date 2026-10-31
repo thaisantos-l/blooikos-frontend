@@ -123,7 +123,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    env:
+      SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+      EXPECTED_DIGEST: ${{ needs.build.outputs.digest }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
       - name: Download release artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
@@ -131,29 +138,9 @@ jobs:
           path: .deploy
           merge-multiple: true
 
-      - name: Verify release artifact
-        shell: bash
-        env:
-          EXPECTED_DIGEST: ${{ needs.build.outputs.digest }}
-        run: |
-          set -euo pipefail
-
-          ACTUAL_DIGEST="$(sha256sum .deploy/release.zip | awk '{print $1}')"
-          FILE_DIGEST="$(tr -d '\r\n' < .deploy/release.sha256)"
-
-          test "$ACTUAL_DIGEST" = "$EXPECTED_DIGEST"
-          test "$ACTUAL_DIGEST" = "$FILE_DIGEST"
-
-      - name: Extract static frontend
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          mkdir -p .deploy/extracted
-          unzip -q .deploy/release.zip -d .deploy/extracted
-
-          test -f .deploy/extracted/manifest.json
-          test -f .deploy/extracted/site/index.html
+      - name: Verify and extract release artifact
+        id: artifact
+        run: python3 scripts/deploy/confirm.py prepare
 
       - name: Configure SSH
         shell: bash
@@ -204,7 +191,7 @@ jobs:
           set -euo pipefail
 
           rsync \
-            -az \
+            -az --checksum \
             --delete \
             --delay-updates \
             --exclude='cms/' \
@@ -241,17 +228,6 @@ jobs:
             "$USER@$HOST" \
             "test -d '$TARGET/cms' && test -f '$TARGET/index.html'"
 
-      - name: Smoke test
-        shell: bash
-        env:
-          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
-        run: |
-          set -euo pipefail
-
-          curl \
-            --fail \
-            --location \
-            --retry 3 \
-            --retry-delay 2 \
-            "$SITE_ORIGIN/" \
-            > /dev/null
+      # Machine-readable digests bind the CMS confirmation to this exact artifact.
+      - name: Confirm artifact over HTTP index=${{ steps.artifact.outputs.index_sha256 }} marker=${{ steps.artifact.outputs.marker_sha256 }}
+        run: python3 scripts/deploy/confirm.py confirm
