@@ -4,13 +4,14 @@ import { About } from '@/components/sections/About';
 import { InstitutionalVisual } from '@/components/sections/InstitutionalVisual';
 import { Indicators } from '@/components/sections/Indicators';
 import { Services } from '@/components/sections/Services';
+import { Companies } from '@/components/sections/Companies';
 import { hasHeroContent } from '@/lib/site/validate-hero';
 import styles from './page.module.scss';
 import { loadSite } from '@/lib/site/load-site.server';
 import { POC_SECTIONS } from '@/lib/site/anchors';
 
 export default async function Home() {
-  const { site, hero, about, institutional, indicators, services } =
+  const { site, hero, about, institutional, indicators, services, companies } =
     await loadSite();
   return (
     <>
@@ -21,9 +22,13 @@ export default async function Home() {
         <InstitutionalVisual institutional={institutional} />
         <Indicators indicators={indicators} />
         <Services services={services} />
+        <Companies companies={companies} />
         {POC_SECTIONS.filter(
           ({ id }) =>
-            id !== 'quem-somos' && id !== 'indicadores' && id !== 'servicos',
+            id !== 'quem-somos' &&
+            id !== 'indicadores' &&
+            id !== 'servicos' &&
+            id !== 'empresas',
         ).map(({ id }) => (
           <div key={id} id={id} tabIndex={-1} />
         ))}
