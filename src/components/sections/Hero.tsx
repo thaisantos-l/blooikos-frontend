@@ -1,4 +1,5 @@
-import { hasHeroContent, type HeroContent } from '../../lib/site/validate-hero';
+import type { HeroContent } from '../../lib/site/validate-content';
+import { hasHeroContent } from '../../lib/site/has-hero-content';
 import { Container } from '../ui/Container';
 import { ResponsiveImage } from '../ui/ResponsiveImage';
 import { ActionLink } from '../ui/ActionLink';

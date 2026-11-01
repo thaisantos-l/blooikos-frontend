@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import '@/styles/globals.scss';
 import { sora } from '@/styles/fonts';
-import { loadSite } from '@/lib/site/load-site.server';
-import { Footer } from '@/components/layout/Footer';
+import { loadSiteCapture } from '@/lib/site/load-site.server';
+import { ContentProvider } from '@/components/content/ContentProvider';
+import { LiveFooter } from '@/components/content/LiveFooter';
+import { runtimeConfig } from '@/lib/site/runtime-config.server';
 import { SkipLink } from '@/components/accessibility/SkipLink';
 
 // Export estático com leitura fresca no build; o transporte mantém no-store.
@@ -16,13 +18,19 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { site } = await loadSite();
+  const { content, metadata } = await loadSiteCapture();
   return (
     <html lang="pt-BR" className={sora.variable}>
       <body>
         <SkipLink />
-        {children}
-        <Footer site={site} />
+        <ContentProvider
+          initialContent={content}
+          metadata={metadata}
+          config={runtimeConfig()}
+        >
+          {children}
+          <LiveFooter />
+        </ContentProvider>
       </body>
     </html>
   );

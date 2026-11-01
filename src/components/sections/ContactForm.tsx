@@ -46,7 +46,13 @@ const subscribeHydration = () => () => {};
 const clientReady = () => true;
 const serverReady = () => false;
 
-export function ContactForm({ endpoint }: { endpoint: string }) {
+export function ContactForm({
+  endpoint,
+  available = true,
+}: {
+  endpoint: string;
+  available?: boolean;
+}) {
   const ready = useSyncExternalStore(
     subscribeHydration,
     clientReady,
@@ -77,7 +83,7 @@ export function ContactForm({ endpoint }: { endpoint: string }) {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!ready || inFlight.current) return;
+    if (!ready || !available || inFlight.current) return;
     const form = event.currentTarget;
     const values = Object.fromEntries(new FormData(form)) as ContactValues;
     const next = validateContact(values);
@@ -148,7 +154,10 @@ export function ContactForm({ endpoint }: { endpoint: string }) {
       onSubmit={submit}
       noValidate
     >
-      <fieldset disabled={!ready || sending} className={styles.fields}>
+      <fieldset
+        disabled={!ready || sending || !available}
+        className={styles.fields}
+      >
         <legend className="sr-only">Enviar mensagem</legend>
         {CONTACT_FIELDS.map((field) => {
           const id = `contact-${field}`;
@@ -207,7 +216,7 @@ export function ContactForm({ endpoint }: { endpoint: string }) {
         </div>
         <Button
           type="submit"
-          disabled={!ready || sending}
+          disabled={!ready || sending || !available}
           className={styles.submit}
         >
           {sending ? 'Enviando…' : 'Enviar mensagem'}
@@ -219,7 +228,9 @@ export function ContactForm({ endpoint }: { endpoint: string }) {
         aria-atomic="true"
         className={styles.status}
       >
-        {status}
+        {available
+          ? status
+          : 'Envio temporariamente indisponível. Seus dados permanecem neste formulário.'}
       </p>
       <noscript>
         Ative o JavaScript para enviar o formulário ou use os contatos ao lado.

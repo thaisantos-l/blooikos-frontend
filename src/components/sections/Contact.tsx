@@ -27,13 +27,16 @@ function Icon({
 export function Contact({
   contact,
   endpoint,
+  retainForm = false,
 }: {
   contact: ContactContent;
   endpoint: string;
+  retainForm?: boolean;
 }) {
   const { eyebrow, title, variant, company, contacts, showForm } = contact;
+  const renderForm = showForm || retainForm;
   const hasContacts = company || Object.values(contacts).some(Boolean);
-  if (!eyebrow && !title && !hasContacts && !showForm)
+  if (!eyebrow && !title && !hasContacts && !renderForm)
     return <div id="contato" tabIndex={-1} />;
   return (
     <section
@@ -53,11 +56,13 @@ export function Contact({
         ) : eyebrow ? (
           <p className={styles.eyebrow}>{eyebrow}</p>
         ) : null}
-        {showForm || hasContacts ? (
+        {renderForm || hasContacts ? (
           <div
-            className={`${styles.layout} ${showForm && hasContacts ? styles.twoColumns : ''}`}
+            className={`${styles.layout} ${renderForm && hasContacts ? styles.twoColumns : ''}`}
           >
-            {showForm ? <ContactForm endpoint={endpoint} /> : null}
+            {renderForm ? (
+              <ContactForm endpoint={endpoint} available={showForm} />
+            ) : null}
             {hasContacts ? (
               <div className={styles.contacts}>
                 {company ? (

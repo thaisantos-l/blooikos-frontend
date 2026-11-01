@@ -1,39 +1,4 @@
-import { Header } from '@/components/layout/Header';
-import { Hero } from '@/components/sections/Hero';
-import { About } from '@/components/sections/About';
-import { InstitutionalVisual } from '@/components/sections/InstitutionalVisual';
-import { Indicators } from '@/components/sections/Indicators';
-import { Services } from '@/components/sections/Services';
-import { Companies } from '@/components/sections/Companies';
-import { Contact } from '@/components/sections/Contact';
-import { contactEndpoint } from '@/lib/contact/endpoint.server';
-import { hasHeroContent } from '@/lib/site/validate-hero';
-import styles from './page.module.scss';
-import { loadSite } from '@/lib/site/load-site.server';
-
-export default async function Home() {
-  const {
-    site,
-    hero,
-    about,
-    institutional,
-    indicators,
-    services,
-    companies,
-    contact,
-  } = await loadSite();
-  return (
-    <>
-      <Header site={site} variant={hasHeroContent(hero) ? 'hero' : 'solid'} />
-      <main id="conteudo" tabIndex={-1} className={styles.heroMain}>
-        <Hero hero={hero} />
-        <About about={about} />
-        <InstitutionalVisual institutional={institutional} />
-        <Indicators indicators={indicators} />
-        <Services services={services} />
-        <Companies companies={companies} />
-        <Contact contact={contact} endpoint={contactEndpoint()} />
-      </main>
-    </>
-  );
+import { LiveHome } from '@/components/content/LiveHome';
+export default function Home() {
+  return <LiveHome />;
 }

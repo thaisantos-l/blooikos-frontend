@@ -54,9 +54,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('action', choices=('prepare', 'confirm'))
     action = parser.parse_args().action
-    identity = context(os.environ)
-    require(identity['operation'] in ('deploy', 'bootstrap'), 'INVALID_OPERATION')
-    expected = os.environ.get('EXPECTED_DIGEST', '')
+    deployment = context(os.environ)
+    require(deployment['event'] == 'workflow_dispatch' and deployment['contentRequest'] is None, 'EXPLICIT_CODE_DEPLOY_REQUIRED')
+    proof = json.loads(Path('.deploy/selected-build.json').read_text())
+    require(proof['deploymentRunId'] == deployment['run'] and proof['deploymentAttempt'] == deployment['attempt'] and proof['deploymentSHA'] == deployment['sha'], 'DEPLOYMENT_PROVENANCE_MISMATCH')
+    identity = proof['identity']
+    expected = proof['digest']
     require(len(expected) == 64 and all(c in '0123456789abcdef' for c in expected), 'INVALID_DIGEST')
     require(Path('.deploy/release.sha256').read_text().strip() == expected, 'PACKAGE_DIGEST_MISMATCH')
     manifest, site = verify(Path('.deploy/release.zip').read_bytes(), expected, identity)
@@ -78,7 +81,7 @@ def main():
             output.write(f"index_sha256={digest(site['index.html'])}\nmarker_sha256={digest(site['blooikos-release.json'])}\n")
     else:
         confirm(site, origin)
-        print(json.dumps({'code': 'PUBLICATION_CONFIRMED', 'releaseId': manifest['releaseId']}))
+        print(json.dumps({'code': 'PUBLICATION_CONFIRMED', 'releaseId': manifest['releaseId'], 'buildRunId': identity['run'], 'buildAttempt': identity['attempt'], 'deploymentRunId': deployment['run'], 'deploymentAttempt': deployment['attempt']}))
 
 
 if __name__ == '__main__':

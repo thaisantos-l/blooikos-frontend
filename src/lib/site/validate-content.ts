@@ -1,0 +1,112 @@
+import {
+  contentObject as object,
+  contentText as text,
+  contentImage,
+  contentLink,
+  mediaSource,
+  parseSiteOrigin,
+} from './normalize';
+import type { SiteChrome, SiteImage, SiteLink } from './types';
+import { validatePoc } from './validate-poc';
+import { normalizeContact, type ContactContent } from './normalize-contact';
+import { normalizeAbout, type AboutContent } from './normalize-about.shared';
+import {
+  normalizeInstitutional,
+  type InstitutionalContent,
+} from './normalize-institutional';
+import {
+  normalizeIndicators,
+  type IndicatorsContent,
+} from './normalize-indicators';
+import { normalizeServices, type ServicesContent } from './normalize-services';
+import {
+  normalizeCompanies,
+  type CompaniesContent,
+} from './normalize-companies.shared';
+
+export interface HeroContent {
+  eyebrow: string;
+  titleBefore: string;
+  titleHighlight: string;
+  titleAfter: string;
+  description: string;
+  background?: SiteImage & { candidates?: { src: string; width: number }[] };
+  primaryCta?: Omit<SiteLink, 'id'>;
+  secondaryCta?: Omit<SiteLink, 'id'>;
+}
+export interface SiteContent {
+  site: SiteChrome;
+  hero: HeroContent;
+  about: AboutContent;
+  institutional: InstitutionalContent;
+  indicators: IndicatorsContent;
+  services: ServicesContent;
+  companies: CompaniesContent;
+  contact: ContactContent;
+}
+type Options = Exclude<Parameters<typeof validatePoc>[1], undefined>;
+import type { RichTextOptions } from './visible-text';
+export function validateHero(
+  data: unknown,
+  options: Options = {},
+): HeroContent {
+  const siteOrigin = parseSiteOrigin(options.siteOrigin);
+  const home = object(object(data).home);
+  const fields =
+    home.__typename === 'Page' && home.isFrontPage === true
+      ? object(home.blooikosHomeHero)
+      : {};
+  const background: HeroContent['background'] = contentImage(
+    fields.background,
+    options.production,
+  );
+  if (background) {
+    background.alt = '';
+    const widths = new Set<number>();
+    const candidates = text(object(object(fields.background).node).srcSet)
+      .split(',')
+      .flatMap((entry) => {
+        const match = entry.trim().match(/^(\S+)\s+([1-9][0-9]*)w$/);
+        if (
+          !match ||
+          !Number.isSafeInteger(Number(match[2])) ||
+          widths.has(Number(match[2]))
+        )
+          return [];
+        try {
+          const src = mediaSource(match[1], options.production ?? false);
+          widths.add(Number(match[2]));
+          return [{ src, width: Number(match[2]) }];
+        } catch {
+          return [];
+        }
+      });
+    if (candidates.length) background.candidates = candidates.slice(0, 32);
+  }
+  return {
+    eyebrow: text(fields.eyebrow),
+    titleBefore: text(fields.titleBefore),
+    titleHighlight: text(fields.titleHighlight),
+    titleAfter: text(fields.titleAfter),
+    description: text(fields.description),
+    background,
+    primaryCta: contentLink(fields.primaryCta, siteOrigin),
+    secondaryCta: contentLink(fields.secondaryCta, siteOrigin),
+  };
+}
+export function validateContent(
+  data: unknown,
+  options: Options & RichTextOptions,
+): SiteContent {
+  const site = validatePoc(data, options);
+  return {
+    site,
+    hero: validateHero(data, options),
+    about: normalizeAbout(data, options),
+    institutional: normalizeInstitutional(data, options),
+    indicators: normalizeIndicators(data),
+    services: normalizeServices(data, options),
+    companies: normalizeCompanies(data, options),
+    contact: normalizeContact(data, site),
+  };
+}
