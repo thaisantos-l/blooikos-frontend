@@ -2,7 +2,8 @@ import nextEnv from '@next/env';
 import { parseGraphQLConfig } from '../src/lib/env';
 import { requestGraphQL } from '../src/lib/graphql/transport';
 import { GraphQLClientError } from '../src/lib/graphql/errors';
-import { POC_CONTRACT_VERSION } from '../src/lib/site/validate-poc';
+import contract from '../contracts/cms/v1/contract.json';
+const POC_CONTRACT_VERSION = contract.contractVersion;
 import { validateContent } from '../src/lib/site/validate-hero';
 import { PocValidationError } from '../src/lib/site/types';
 

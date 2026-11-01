@@ -149,7 +149,7 @@ export async function captureSnapshot(nonce: string) {
     flag: 'w',
   });
 }
-export async function readBuildSnapshot() {
+export async function readBuildCapture() {
   await safeDirectory();
   const stat = await lstat(filename);
   if (
@@ -174,11 +174,17 @@ export async function readBuildSnapshot() {
     sha256(await profileDocument()) !== metadata.operationDigest
   )
     throw new Error('SNAPSHOT_PROVENANCE_MISMATCH');
-  return versionMedia(
-    validateContent(snapshot.data, {
-      production: true,
-      siteOrigin: process.env.SITE_ORIGIN,
-    }),
+  return {
     metadata,
-  );
+    content: versionMedia(
+      validateContent(snapshot.data, {
+        production: true,
+        siteOrigin: process.env.SITE_ORIGIN,
+      }),
+      metadata,
+    ),
+  };
+}
+export async function readBuildSnapshot() {
+  return (await readBuildCapture()).content;
 }

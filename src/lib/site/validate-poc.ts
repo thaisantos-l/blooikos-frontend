@@ -1,4 +1,3 @@
-import contract from '../../../contracts/cms/v1/contract.json';
 import { GraphQLClientError } from '../graphql/errors';
 import type { SiteChrome, SiteLink } from './types';
 import {
@@ -12,7 +11,6 @@ import {
   phoneDestination,
 } from './normalize';
 
-export const POC_CONTRACT_VERSION = contract.contractVersion;
 // Normaliza chrome opcional; o envelope e erros GraphQL são verificados no transporte.
 export function validatePoc(
   data: unknown,

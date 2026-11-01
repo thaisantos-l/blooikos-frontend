@@ -1,142 +1,50 @@
 name: Frontend production
-run-name: ${{ inputs.request_id && format('Blooikos content {0}', inputs.request_id) || format('Blooikos {0}', inputs.operation || 'deploy') }}
+run-name: Code ${{ inputs.operation }} build ${{ inputs.build_run_id }} artifact ${{ inputs.artifact_id }}
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
+      build_run_id:
+        description: Successful main build run ID
+        type: string
+        required: true
+      artifact_id:
+        description: Artifact ID produced by that build attempt
+        type: string
+        required: true
       operation:
-        description: Operação (bootstrap substitui a página pública pela POC noindex)
+        description: Deploy current main, or explicitly roll back to an integrated build
         type: choice
-        options: [deploy, rollback, bootstrap, resume]
+        options: [deploy, rollback]
         default: deploy
         required: true
-      release_id:
-        description: Release saudável para rollback, ou initial para desfazer bootstrap
-        type: string
-        required: false
-      content_epoch:
-        description: Epoch editorial (todos os quatro inputs editoriais ou nenhum)
-        type: string
-        required: false
-      content_version:
-        description: Versão decimal do conteúdo
-        type: string
-        required: false
-      content_digest:
-        description: SHA-256 da versão consolidada
-        type: string
-        required: false
-      request_id:
-        description: UUID do pedido editorial
-        type: string
-        required: false
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: blooikos-frontend-production
   cancel-in-progress: false
 env:
-  CI: 'true'
-  NEXT_TELEMETRY_DISABLED: '1'
   PYTHONDONTWRITEBYTECODE: '1'
-  DEPLOY_OPERATION: ${{ inputs.operation || 'deploy' }}
-  DEPLOY_RELEASE_ID: ${{ inputs.release_id || '' }}
-  CONTENT_EPOCH: ${{ inputs.content_epoch || '' }}
-  CONTENT_VERSION: ${{ inputs.content_version || '' }}
-  CONTENT_DIGEST: ${{ inputs.content_digest || '' }}
-  CONTENT_REQUEST_ID: ${{ inputs.request_id || '' }}
 jobs:
-  gate:
-    if: github.repository == 'thaisantos-l/blooikos-frontend' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    outputs:
-      operation: ${{ steps.gate.outputs.operation }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ github.sha }}
-      - id: gate
-        run: python3 scripts/deploy/cli.py gate
-  build:
-    needs: gate
-    if: needs.gate.outputs.operation == 'deploy' || needs.gate.outputs.operation == 'bootstrap'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production
-    env:
-      WORDPRESS_GRAPHQL_URL: ${{ vars.WORDPRESS_GRAPHQL_URL }}
-      SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
-      CMS_REBUILD_VERSION_URL: ${{ vars.CMS_REBUILD_VERSION_URL }}
-    outputs:
-      digest: ${{ steps.package.outputs.digest }}
-      artifact: ${{ steps.upload.outputs.artifact-id }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ github.sha }}
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          run_install: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm check
-      - name: Capture consistent CMS snapshot
-        id: capture
-        continue-on-error: true
-        run: pnpm build
-      - name: Editorial content rejected
-        if: steps.capture.outcome == 'failure' && steps.capture.outputs.failure_category == 'editorial'
-        run: exit 1
-      - name: Build or capture failed
-        if: steps.capture.outcome == 'failure' && steps.capture.outputs.failure_category != 'editorial'
-        run: exit 1
-      - run: pnpm verify:export
-      - id: package
-        run: |
-          export DEPLOY_BUILD_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          pnpm deploy:package
-      - id: upload
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: blooikos-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .deploy/release.zip
-            .deploy/release.sha256
-          if-no-files-found: error
-          retention-days: 14
-          include-hidden-files: true
   publish:
-    needs: [gate, build]
-    if: >-
-      !cancelled() &&
-      needs.gate.result == 'success' &&
-      needs.build.result == 'success'
+    if: github.repository == 'thaisantos-l/blooikos-frontend' && github.ref == 'refs/heads/main'
     environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     env:
       SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
-      EXPECTED_DIGEST: ${{ needs.build.outputs.digest }}
+      GH_TOKEN: ${{ github.token }}
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+      BUILD_ARTIFACT_ID: ${{ inputs.artifact_id }}
+      CODE_OPERATION: ${{ inputs.operation }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           ref: ${{ github.sha }}
-      - name: Download release artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          artifact-ids: ${{ needs.build.outputs.artifact }}
-          path: .deploy
-          merge-multiple: true
+      - name: Select trusted build artifact by ID
+        run: python3 scripts/deploy/select_artifact.py
 
       - name: Verify and extract release artifact
         id: artifact
@@ -229,6 +137,6 @@ jobs:
             "$USER@$HOST" \
             "test -d '$TARGET/cms' && test -f '$TARGET/index.html'"
 
-      # Machine-readable digests bind the CMS confirmation to this exact artifact.
+      # Confirmation binds the public code release to the selected build artifact.
       - name: Confirm artifact over HTTP index=${{ steps.artifact.outputs.index_sha256 }} marker=${{ steps.artifact.outputs.marker_sha256 }}
         run: python3 scripts/deploy/confirm.py confirm
