@@ -17,7 +17,7 @@ export interface RuntimeConfig {
 export class ContentReadError extends Error {
   constructor(
     public readonly kind: 'pending' | 'network' | 'contract',
-    public readonly retryAfter = 5,
+    public readonly retryAfter = 1,
   ) {
     super(kind);
   }
@@ -101,7 +101,7 @@ export async function readRuntimeContent(
     void response.body?.cancel();
     throw new ContentReadError(
       'pending',
-      /^\d+$/.test(retry) ? Math.max(5, Math.min(120, Number(retry))) : 5,
+      /^\d+$/.test(retry) ? Math.max(1, Math.min(120, Number(retry))) : 1,
     );
   }
   if (

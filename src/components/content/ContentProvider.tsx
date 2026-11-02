@@ -72,7 +72,7 @@ export function ContentProvider({
         active = controller;
         const request = ++requestNumber;
         const timeout = setTimeout(() => controller.abort(), 10000);
-        let delay = 30;
+        let delay = 5;
         try {
           const result = await readRuntimeContent(
             config,
