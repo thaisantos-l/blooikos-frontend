@@ -1,7 +1,11 @@
 # Build de código e publicação separados
 
 Conteúdo editorial é lido em `/wp-json/blooikos/v1/site-content` após hidratação,
-a cada 30 segundos de aba visível e no retorno/reconexão. A primeira renderização,
+a cada 5 segundos de aba visível e no retorno/reconexão. O CMS consolida no fim
+do salvamento; ETag vigente retorna uma resposta leve, sem refazer a consulta
+editorial. Com CMS/rede disponíveis, a meta é refletir a edição em 5–10 segundos.
+Erros usam retentativas limitadas e preservam a última versão validada.
+A primeira renderização,
 o HTML sem JavaScript e os metadados continuam na captura do build. Não remover
 noindex: SEO depende de uma decisão posterior. A API pode estar em revisão mais
 nova que `blooikos-release.json`; isso não exige publicar código.
