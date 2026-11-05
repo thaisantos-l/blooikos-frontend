@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import time
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -35,7 +36,7 @@ def fetch(url, limit):
 
 
 def confirm(site, origin, attempts=3):
-    """At most 6 requests / 64 seconds; no random cache-busting or redirects."""
+    """Bounded confirmation of artifact bytes, including SEO when present."""
     origin = public_url(origin, True)
     for attempt in range(attempts):
         try:
@@ -43,6 +44,25 @@ def confirm(site, origin, attempts=3):
                 body, headers = fetch(origin + route, len(site[name]))
                 require(fresh(headers, name.endswith('.json')), 'PUBLICATION_CACHE_POLICY')
                 require(body == site[name], 'PUBLICATION_BYTES_MISMATCH')
+                if name == 'index.html':
+                    class Robots(HTMLParser):
+                        indexable = False
+
+                        def handle_starttag(self, tag, attrs):
+                            attrs = dict(attrs)
+                            if tag == 'meta' and attrs.get('name') == 'robots':
+                                self.indexable = 'index' in attrs.get('content', '').replace(' ', '').split(',')
+
+                    policy = Robots()
+                    policy.feed(body.decode('utf-8'))
+                    require(not policy.indexable or 'noindex' not in headers.get('X-Robots-Tag', '').lower(), 'PUBLICATION_INDEX_POLICY')
+            for name, mime in (('robots.txt', 'text/plain'), ('sitemap.xml', 'application/xml')):
+                if name not in site:  # Older artifacts remain valid rollback targets.
+                    continue
+                body, headers = fetch(origin + '/' + name, len(site[name]))
+                require(body == site[name], 'PUBLICATION_BYTES_MISMATCH')
+                actual = headers.get('Content-Type', '').split(';')[0].strip().lower()
+                require(actual == mime or (name.endswith('.xml') and actual == 'text/xml'), 'PUBLICATION_SEO_MIME')
             return
         except (DeployError, URLError, TimeoutError, OSError):
             if attempt + 1 == attempts:
