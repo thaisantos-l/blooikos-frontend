@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { CompanyContent } from '../../lib/site/normalize-companies';
 import { Container } from '../ui/Container';
 import { SectionHeading } from '../ui/SectionHeading';
@@ -33,7 +34,17 @@ export function CompanySection({
         className={`${styles.layout} ${hasPresentation && image ? styles.paired : ''} ${imageSide === 'left' ? styles.imageLeft : ''}`}
       >
         {hasPresentation ? (
-          <div className={styles.presentation} data-reveal>
+          <div
+            className={styles.presentation}
+            style={
+              logo
+                ? ({
+                    '--mobile-logo-width': `${logo.width * 0.8}px`,
+                  } as CSSProperties)
+                : undefined
+            }
+            data-reveal
+          >
             {logo ? (
               <ResponsiveImage
                 {...logo}

@@ -9,6 +9,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: var(--site-header-height, 4.5rem);
 
   @media (prefers-reduced-motion: reduce) {
     scroll-behavior: auto;

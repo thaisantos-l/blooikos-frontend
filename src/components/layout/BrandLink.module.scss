@@ -7,6 +7,10 @@
 }
 .header {
   width: 9.4375rem;
+
+  @media (max-width: 991.98px) {
+    width: 8.25rem;
+  }
 }
 .footer {
   width: 8.625rem;
