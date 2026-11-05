@@ -54,5 +54,12 @@
   --action-min-height: 3.9375rem;
   --focus-width: 3px;
   --focus-offset: 3px;
-  --motion-duration: 160ms;
+  --motion-duration: 260ms;
+  --motion-surface-duration: 360ms;
+  --motion-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --shadow-surface-active: 0 6px 14px rgb(16 48 86 / 24%);
+  --color-field-focus: #e5effc;
+  --color-field-placeholder: #6c6b70;
+  --color-error: #a51c30;
+  --color-error-surface: #fff0f2;
 }

@@ -50,7 +50,7 @@ export function Hero({ hero }: { hero: HeroContent }) {
           <p className={styles.description}>{hero.description}</p>
         ) : null}
         {hero.primaryCta || hero.secondaryCta ? (
-          <div className={styles.actions}>
+          <div className={styles.actions} data-reveal>
             {hero.primaryCta ? (
               <ActionLink
                 href={hero.primaryCta.href}

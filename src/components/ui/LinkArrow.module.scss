@@ -13,8 +13,37 @@
   font-size: var(--font-size-action);
   line-height: var(--line-height-link-arrow);
   text-decoration: none;
-  &:hover .label {
-    text-decoration: underline;
+  @include mixins.hover {
+    color: var(--color-brand-hover);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      color var(--motion-duration) ease,
+      background-color var(--motion-duration) ease,
+      box-shadow var(--motion-surface-duration) var(--motion-easing),
+      translate var(--motion-surface-duration) var(--motion-easing);
+
+    @include mixins.hover {
+      translate: 2px 0;
+
+      .arrow {
+        translate: 2px 0;
+      }
+    }
+
+    &:focus-visible {
+      translate: 2px 0;
+    }
+
+    &:focus-visible .arrow {
+      translate: 2px 0;
+    }
+
+    &:active,
+    &:active .arrow {
+      translate: 0 0;
+    }
   }
 }
 
@@ -28,4 +57,8 @@
   flex: none;
   width: 13px;
   height: 7.36396px;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: translate var(--motion-surface-duration) var(--motion-easing);
+  }
 }

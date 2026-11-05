@@ -26,6 +26,13 @@ const labels: Record<ContactField, string> = {
   company: 'Empresa',
   message: 'Mensagem',
 };
+const placeholders: Record<ContactField, string> = {
+  name: 'Seu nome',
+  email: 'email@empresa.com.br',
+  phone: '+55 90000-0000',
+  company: 'Sua empresa (opcional)',
+  message: 'Como podemos ajudar?',
+};
 const autocomplete = {
   name: 'name',
   email: 'email',
@@ -153,6 +160,7 @@ export function ContactForm({
       method="post"
       onSubmit={submit}
       noValidate
+      data-reveal
     >
       <fieldset
         disabled={!ready || sending || !available}
@@ -167,6 +175,7 @@ export function ContactForm({
             required: field !== 'company',
             maxLength: CONTACT_LIMITS[field],
             autoComplete: autocomplete[field],
+            placeholder: placeholders[field],
             'aria-invalid': errors[field] ? true : undefined,
             'aria-describedby': errors[field] ? `${id}-error` : undefined,
           };
@@ -176,10 +185,10 @@ export function ContactForm({
               className={`${styles.field} ${field === 'email' || field === 'phone' ? styles.half : ''}`}
             >
               <label htmlFor={id}>
-                {labels[field]}{' '}
-                <span className={styles.requirement}>
-                  ({field === 'company' ? 'opcional' : 'obrigatório'})
-                </span>
+                {labels[field]}
+                {field === 'company' ? (
+                  <span className={styles.requirement}> (opcional)</span>
+                ) : null}
               </label>
               {field === 'message' ? (
                 <textarea {...props} rows={5} />

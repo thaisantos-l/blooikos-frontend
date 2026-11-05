@@ -64,7 +64,7 @@ export function Contact({
               <ContactForm endpoint={endpoint} available={showForm} />
             ) : null}
             {hasContacts ? (
-              <div className={styles.contacts}>
+              <div className={styles.contacts} data-reveal>
                 {company ? (
                   <p className={`${styles.contactRow} ${styles.company}`}>
                     <span className={styles.companyIcon}>

@@ -20,6 +20,28 @@
   white-space: normal;
   overflow-wrap: anywhere;
   cursor: pointer;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      color var(--motion-duration) ease,
+      background-color var(--motion-duration) ease,
+      border-color var(--motion-duration) ease,
+      translate var(--motion-surface-duration) var(--motion-easing);
+
+    @include mixins.hover {
+      &:not(:disabled) {
+        translate: 0 -2px;
+      }
+    }
+
+    &:focus-visible:not(:disabled) {
+      translate: 0 -2px;
+    }
+
+    &:active:not(:disabled) {
+      translate: 0 0;
+    }
+  }
 }
 
 .label {
@@ -29,8 +51,10 @@
 .primary {
   background: var(--color-brand);
   color: var(--color-text-inverse);
-  &:hover:not(:disabled) {
-    background: var(--color-brand-hover);
+  @include mixins.hover {
+    &:not(:disabled) {
+      background: var(--color-brand-hover);
+    }
   }
 }
 
@@ -38,9 +62,11 @@
   color: var(--color-text-inverse);
   background: transparent;
   border-color: currentColor;
-  &:hover:not(:disabled) {
-    background: var(--color-surface);
-    color: var(--color-surface-dark);
+  @include mixins.hover {
+    &:not(:disabled) {
+      background: var(--color-surface);
+      color: var(--color-surface-dark);
+    }
   }
 }
 

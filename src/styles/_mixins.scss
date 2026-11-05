@@ -24,3 +24,50 @@
     transition: none;
   }
 }
+
+@mixin hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+@mixin surface-transition {
+  transition:
+    color var(--motion-duration) ease,
+    background-color var(--motion-surface-duration) var(--motion-easing),
+    box-shadow var(--motion-surface-duration) var(--motion-easing),
+    translate var(--motion-surface-duration) var(--motion-easing);
+
+  @include hover {
+    box-shadow: var(--shadow-surface-active);
+  }
+
+  &:focus-within {
+    box-shadow: var(--shadow-surface-active);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// Cards informativos recebem apenas um efeito visual; não ganham interação.
+@mixin card-motion {
+  transition:
+    box-shadow var(--motion-surface-duration) var(--motion-easing),
+    transform var(--motion-surface-duration) var(--motion-easing);
+
+  @include hover {
+    box-shadow: var(--shadow-surface-active);
+
+    @media (prefers-reduced-motion: no-preference) {
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
