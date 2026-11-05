@@ -1,48 +1,36 @@
 .header {
-  background: var(--color-surface-dark);
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 10;
+  background: transparent;
   color: var(--color-text-inverse);
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color var(--motion-duration) ease;
+  }
+}
+.solid,
+.fixed {
+  background: var(--color-surface-dark);
+}
+.fixed {
+  position: fixed;
+}
+.spacer {
+  flex: none;
+  height: var(--site-header-height, 4.5rem);
 }
 .inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   min-height: 4.5rem;
   padding-block: var(--space-3);
   gap: var(--space-3) var(--space-6);
-  // O disclosure ocupa uma linha inteira quando abre, sem sobrepor o conteúdo.
-  > details {
-    grid-column: 1 / -1;
-  }
-}
-@media (max-width: 991.98px) {
-  .inner {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .inner > a {
-    grid-column: 1;
-    grid-row: 1;
-    align-self: start;
-  }
-  .inner > details {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .inner > details > summary {
-    margin-left: auto;
-  }
 }
 @media (min-width: 992px) {
   .inner {
     grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-12);
-  }
-}
-
-@media (min-width: 992px) {
-  .hero {
-    position: absolute;
-    inset: 0 0 auto;
-    z-index: 10;
-    background: transparent;
   }
 }
