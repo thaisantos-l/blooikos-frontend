@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 .section {
   padding-block: clamp(3rem, 6.25vw, 5.625rem);
   color: var(--color-text);
@@ -24,6 +26,7 @@
   align-items: start;
 }
 .form {
+  @include mixins.surface-transition;
   min-width: 0;
   background: var(--color-surface);
   padding: clamp(1.25rem, 2.23vw, 2rem);
@@ -42,10 +45,11 @@
   min-width: 0;
 }
 .field label {
+  @include mixins.color-transition;
   display: block;
   margin-bottom: 0.75rem;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.39;
 }
 .requirement {
   font-size: 0.75rem;
@@ -53,33 +57,44 @@
 }
 .field input,
 .field textarea {
+  @include mixins.color-transition;
   display: block;
   width: 100%;
   min-height: 46px;
-  border: 1px solid #78777c;
+  border: 0;
+  outline: none;
   border-radius: 0;
-  padding: 0.625rem 0.875rem;
+  padding: 0.625rem 1rem;
   color: var(--color-text);
   background: var(--color-surface-muted);
   font: inherit;
   font-size: 1rem;
   line-height: 1.5;
+
+  &::placeholder {
+    color: var(--color-field-placeholder);
+    font-size: 0.875rem;
+    opacity: 1;
+  }
 }
 .field textarea {
   min-height: 141px;
   resize: vertical;
 }
-.field input:focus-visible,
-.field textarea:focus-visible {
-  outline: 2px solid var(--color-brand);
-  outline-offset: 3px;
+.field:focus-within label {
+  color: var(--color-brand);
+  font-weight: var(--font-weight-heading);
+}
+.field input:focus,
+.field textarea:focus {
+  background: var(--color-field-focus);
 }
 .field [aria-invalid='true'] {
-  border-color: #a51c30;
+  background: var(--color-error-surface);
 }
 .field .error {
   margin: 0.5rem 0 0;
-  color: #a51c30;
+  color: var(--color-error);
   font-size: 0.875rem;
 }
 .form .submit {
@@ -87,6 +102,7 @@
   min-height: 54px;
   min-width: min(235px, 100%);
   max-width: 100%;
+  padding: 0.875rem 1.5rem;
 }
 .status {
   margin: 1rem 0 0;
@@ -115,6 +131,12 @@
   min-height: 44px;
   max-width: 100%;
   font-size: inherit;
+  font-weight: var(--font-weight-regular);
+  color: inherit;
+
+  @include mixins.hover {
+    color: var(--color-brand);
+  }
 }
 .contactRow:has(> a) {
   align-items: center;
@@ -150,6 +172,13 @@
 }
 .address {
   white-space: pre-line;
+}
+@media (forced-colors: active) {
+  .field input:focus,
+  .field textarea:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
 }
 @media (min-width: 600px) {
   .fields {

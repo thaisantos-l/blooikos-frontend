@@ -33,7 +33,7 @@ export function CompanySection({
         className={`${styles.layout} ${hasPresentation && image ? styles.paired : ''} ${imageSide === 'left' ? styles.imageLeft : ''}`}
       >
         {hasPresentation ? (
-          <div className={styles.presentation}>
+          <div className={styles.presentation} data-reveal>
             {logo ? (
               <ResponsiveImage
                 {...logo}
@@ -72,7 +72,7 @@ export function CompanySection({
           </div>
         ) : null}
         {image ? (
-          <div className={styles.photo}>
+          <div className={styles.photo} data-reveal>
             <ResponsiveImage
               {...image}
               fit="cover"

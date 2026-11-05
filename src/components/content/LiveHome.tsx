@@ -9,9 +9,11 @@ import { Companies } from '../sections/Companies';
 import { Contact } from '../sections/Contact';
 import { useSiteContent } from './ContentProvider';
 import { hasHeroContent } from '../../lib/site/has-hero-content';
+import { useScrollReveal } from '../motion/useScrollReveal';
 import styles from '../../app/page.module.scss';
 
 export function LiveHome() {
+  const mainRef = useScrollReveal();
   const { content, config, retainForm } = useSiteContent();
   const {
     site,
@@ -26,7 +28,12 @@ export function LiveHome() {
   return (
     <>
       <Header site={site} variant={hasHeroContent(hero) ? 'hero' : 'solid'} />
-      <main id="conteudo" tabIndex={-1} className={styles.heroMain}>
+      <main
+        ref={mainRef}
+        id="conteudo"
+        tabIndex={-1}
+        className={styles.heroMain}
+      >
         <Hero hero={hero} />
         <About about={about} />
         <InstitutionalVisual institutional={institutional} />

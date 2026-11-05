@@ -1,0 +1,16 @@
+.counter {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+// The final editorial value reserves the space throughout the count.
+.size {
+  visibility: hidden;
+}
+
+.display {
+  position: absolute;
+  inset: 0;
+}

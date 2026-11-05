@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import type { IndicatorsContent } from '../../lib/site/normalize-indicators';
 import { Container } from '../ui/Container';
 import { SectionHeading } from '../ui/SectionHeading';
+import { AnimatedNumber } from '../motion/AnimatedNumber';
 import headingStyles from '../ui/SectionHeading.module.scss';
 import styles from './Indicators.module.scss';
 
@@ -38,9 +39,11 @@ export function Indicators({ indicators }: { indicators: IndicatorsContent }) {
             style={{ '--indicator-count': items.length } as CSSProperties}
           >
             {items.map((item, index) => (
-              <li key={index} className={styles.item}>
+              <li key={index} className={styles.item} data-reveal>
                 {item.value ? (
-                  <p className={styles.value}>{item.value}</p>
+                  <p className={styles.value}>
+                    <AnimatedNumber value={item.value} />
+                  </p>
                 ) : null}
                 {item.label ? (
                   <p className={styles.label}>{item.label}</p>

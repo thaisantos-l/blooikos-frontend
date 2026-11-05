@@ -7,6 +7,8 @@ import { ContentProvider } from '@/components/content/ContentProvider';
 import { LiveFooter } from '@/components/content/LiveFooter';
 import { runtimeConfig } from '@/lib/site/runtime-config.server';
 import { SkipLink } from '@/components/accessibility/SkipLink';
+import { SiteIcon } from '@/components/layout/SiteIcon';
+import { siteIconEndpoint } from '@/lib/site/site-icon';
 
 // Export estático com leitura fresca no build; o transporte mantém no-store.
 export const dynamic = 'force-static';
@@ -19,14 +21,19 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const { content, metadata } = await loadSiteCapture();
+  const config = runtimeConfig();
   return (
     <html lang="pt-BR" className={sora.variable}>
       <body>
         <SkipLink />
+        <SiteIcon
+          endpoint={siteIconEndpoint(config.contactEndpoint)}
+          production={config.production}
+        />
         <ContentProvider
           initialContent={content}
           metadata={metadata}
-          config={runtimeConfig()}
+          config={config}
         >
           {children}
           <LiveFooter />

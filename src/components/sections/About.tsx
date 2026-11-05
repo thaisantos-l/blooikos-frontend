@@ -22,7 +22,7 @@ export function About({ about }: { about: AboutContent }) {
     >
       <Container className={styles.layout}>
         {hasText ? (
-          <div className={styles.presentation}>
+          <div className={styles.presentation} data-reveal>
             {about.title ? (
               <SectionHeading
                 id="about-title"
@@ -53,7 +53,7 @@ export function About({ about }: { about: AboutContent }) {
         {about.companies.length ? (
           <ul className={styles.cards}>
             {about.companies.map((company) => (
-              <li key={company.id} className={styles.card}>
+              <li key={company.id} className={styles.card} data-reveal>
                 {company.icon ? (
                   <ResponsiveImage
                     {...company.icon}

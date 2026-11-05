@@ -7,6 +7,14 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   min-height: 100svh;
   display: flex;
@@ -21,8 +29,20 @@ body {
 }
 
 a {
+  @include mixins.color-transition;
   color: var(--color-brand);
-  text-underline-offset: 0.2em;
+  text-decoration: none;
+
+  &:not([class]) {
+    @include mixins.hover {
+      color: var(--color-brand-hover);
+    }
+  }
+}
+
+// Links do texto rico continuam distintos mesmo sem o sublinhado.
+main :where(p, li) a:not([class]) {
+  font-weight: var(--font-weight-heading);
 }
 
 a,

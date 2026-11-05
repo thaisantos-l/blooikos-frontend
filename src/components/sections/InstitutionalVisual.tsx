@@ -11,7 +11,7 @@ export function InstitutionalVisual({
   if (!image) return null;
 
   return (
-    <div className={styles.visual}>
+    <div className={styles.visual} data-reveal>
       <ResponsiveImage
         {...image}
         fit="cover"

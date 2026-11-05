@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 .section {
   padding-block: clamp(3rem, 8.3vw, 7.5rem);
 }
@@ -68,6 +70,7 @@
 }
 
 .card {
+  @include mixins.card-motion;
   display: flex;
   align-items: center;
   gap: var(--space-6);

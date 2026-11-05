@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 .section {
   padding-block: clamp(3rem, 8.3vw, 7.5rem);
   color: var(--color-text);
@@ -56,6 +58,7 @@
 }
 
 .card {
+  @include mixins.card-motion;
   min-width: 0;
   padding: clamp(1.5rem, 2.23vw, 2rem);
   border-radius: var(--radius-surface);

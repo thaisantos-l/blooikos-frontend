@@ -20,7 +20,7 @@ export function Services({ services }: { services: ServicesContent }) {
     >
       <Container>
         {hasHeading ? (
-          <div className={styles.presentation}>
+          <div className={styles.presentation} data-reveal>
             {title ? (
               <SectionHeading
                 id="services-title"
@@ -45,7 +45,7 @@ export function Services({ services }: { services: ServicesContent }) {
         {items.length ? (
           <ul className={styles.cards}>
             {items.map((item, index) => (
-              <li key={index} className={styles.card}>
+              <li key={index} className={styles.card} data-reveal>
                 {item.icon ? (
                   <ResponsiveImage
                     {...item.icon}
