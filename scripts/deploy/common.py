@@ -119,7 +119,7 @@ def file_path(name):
     require(not set(parts).intersection({'docs', 'tools', 'src', 'tests', 'contracts', 'node_modules',
                                         'cms', 'wp-content', 'fixtures', 'backups'}), 'FORBIDDEN_MEMBER')
     require(Path(name).suffix in ('.html', '.txt', '.js', '.css', '.woff', '.woff2', '.ico',
-                                  '.png', '.jpg', '.jpeg', '.webp', '.svg', '.json'), 'FORBIDDEN_MEMBER')
+                                  '.png', '.jpg', '.jpeg', '.webp', '.svg', '.json', '.xml'), 'FORBIDDEN_MEMBER')
     return name
 
 

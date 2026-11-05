@@ -116,6 +116,9 @@ def main():
     snapshot = json.loads(snapshot_path.read_bytes())
     from content import canonical
     require(digest(canonical(snapshot['data']).encode()) == metadata(snapshot['content'])['dataDigest'], 'SNAPSHOT_DIGEST_MISMATCH')
+    require(digest(canonical(snapshot['seo']).encode()) == snapshot['seoDigest'], 'SEO_SNAPSHOT_DIGEST_MISMATCH')
+    # New builds include SEO files; verification of previous rollback artifacts stays compatible.
+    require(all(Path('out', name).is_file() for name in ('robots.txt', 'sitemap.xml')), 'INCOMPLETE_SEO_EXPORT')
     data = package(Path('out'), identity, os.environ['DEPLOY_BUILD_UTC'],
                    os.environ['SITE_ORIGIN'], os.environ['WORDPRESS_GRAPHQL_URL'], snapshot)
     output = Path('.deploy')

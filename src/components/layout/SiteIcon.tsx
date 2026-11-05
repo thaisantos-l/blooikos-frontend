@@ -15,7 +15,9 @@ export function SiteIcon({
       let active: AbortController | undefined;
       let disposed = false;
       let wasHidden = document.visibilityState === 'hidden';
-      let icon: HTMLLinkElement | undefined;
+      let icon =
+        document.head.querySelector<HTMLLinkElement>('link[rel="icon"]') ??
+        undefined;
 
       async function refresh() {
         if (disposed || active) return;
@@ -67,7 +69,6 @@ export function SiteIcon({
       return function cleanup() {
         disposed = true;
         active?.abort();
-        icon?.remove();
         document.removeEventListener('visibilitychange', visible);
       };
     },

@@ -10,6 +10,27 @@ import {
 } from './content-version';
 import { validateContent } from './validate-hero';
 import { versionMedia } from './version-media';
+import { requestSeo, seoEndpoint } from '../seo/transport';
+import { resolveSeo, seoIdentity } from '../seo/normalize';
+import { serverText } from './visible-text.server';
+
+function checkSeoHome(
+  seo: unknown,
+  data: {
+    home?: {
+      __typename?: string;
+      databaseId?: number;
+      isFrontPage?: boolean | null;
+    } | null;
+  },
+) {
+  const id = data.home?.__typename === 'Page' ? data.home.databaseId : null;
+  if (
+    seoIdentity(seo).id !== id ||
+    (id !== null && data.home?.isFrontPage !== true)
+  )
+    throw new Error('SEO_HOME_CHANGED_DURING_CAPTURE');
+}
 
 const directory = resolve('.build-snapshot');
 const filename = resolve(directory, 'poc.json');
@@ -93,6 +114,14 @@ export async function readPublicSnapshot(
   )
     throw new Error('STALE_CONTENT_REQUEST');
   const data = await requestGraphQL('BlooikosHome', config);
+  const seo = await requestSeo(seoEndpoint(config.endpoint));
+  checkSeoHome(seo, data);
+  const resolvedSeo = resolveSeo(seo, {
+    production: mode === 'production',
+    siteOrigin: process.env.SITE_ORIGIN,
+    readText: serverText,
+  });
+  for (const code of resolvedSeo.diagnostics) console.warn(`[SEO] ${code}`);
   const after = await version(endpoint.href);
   if (canonical(before) !== canonical(after))
     throw new Error('CONTENT_CHANGED_DURING_CAPTURE');
@@ -108,6 +137,7 @@ export async function readPublicSnapshot(
   });
   return {
     data,
+    seo,
     metadata: before,
     content: versionMedia(content, before),
     config,
@@ -119,6 +149,7 @@ export async function readPublicSnapshot(
 export async function captureSnapshot(nonce: string) {
   const {
     data,
+    seo,
     metadata: before,
     config,
     versionUrl,
@@ -137,6 +168,9 @@ export async function captureSnapshot(nonce: string) {
     content: before,
     requestId: request?.requestId ?? null,
     data,
+    seo,
+    seoDigest: sha256(canonical(seo)),
+    seoEndpoint: seoEndpoint(config.endpoint),
     endpoint: config.endpoint,
     versionUrl,
     siteOrigin: process.env.SITE_ORIGIN,
@@ -171,11 +205,15 @@ export async function readBuildCapture() {
     snapshot.run !== (process.env.GITHUB_RUN_ID ?? '') ||
     snapshot.attempt !== (process.env.GITHUB_RUN_ATTEMPT ?? '') ||
     sha256(canonical(snapshot.data)) !== metadata.dataDigest ||
+    snapshot.seoEndpoint !== seoEndpoint(snapshot.endpoint) ||
+    sha256(canonical(snapshot.seo)) !== snapshot.seoDigest ||
     sha256(await profileDocument()) !== metadata.operationDigest
   )
     throw new Error('SNAPSHOT_PROVENANCE_MISMATCH');
+  checkSeoHome(snapshot.seo, snapshot.data);
   return {
     metadata,
+    seo: snapshot.seo as unknown,
     content: versionMedia(
       validateContent(snapshot.data, {
         production: true,

@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import contactAssets from '../src/lib/contact/assets.json';
 import budget from '../performance-budget.json';
 import { verifyShell } from './export-html';
+import { verifySeo } from './verify-seo';
 
 export async function verifyExport(root = resolve('out')) {
   const files: string[] = [];
@@ -52,7 +53,7 @@ export async function verifyExport(root = resolve('out')) {
       metrics.cssGzipBytes += gzipSync(bytes, { level: 9 }).length;
     if (/\.woff2?$/.test(file)) metrics.fontBytes += bytes.length;
     if (
-      /\.(html|js|css|txt|json)$/.test(file) &&
+      /\.(html|js|css|txt|xml|json)$/.test(file) &&
       /WORDPRESS_GRAPHQL_URL|HOSTINGER_SSH_KEY|BlooikosHeaderFooter|BlooikosHome\b|BlooikosFoundationSmoke|\/Applications\/XAMPP|SPEC05_GALLERY_ONLY|figma\.com\/api\/mcp\/asset|makeproxy-c\.figma\.site/.test(
         bytes.toString(),
       )
@@ -63,26 +64,20 @@ export async function verifyExport(root = resolve('out')) {
     await readFile(join(root, 'index.html'), 'utf8'),
     await readFile(join(root, '404.html'), 'utf8'),
   );
+  await verifySeo(root);
   for (const file of ['index.html', '404.html']) {
     const html = await readFile(join(root, file), 'utf8');
     if (/(?:src|href)="\/icons\/arrow-right\.svg"/.test(html)) {
       const arrow = await readFile(join(root, 'icons/arrow-right.svg'));
       if (!arrow.length) throw new Error('Asset LinkArrow vazio no export.');
     }
-    const robots = [...html.matchAll(/<meta\b[^>]*name="robots"[^>]*>/g)]
-      .map((m) => m[0])
-      .join(' ');
     if (
-      !/noindex/.test(robots) ||
-      !/nofollow/.test(robots) ||
       !html.includes('lang="pt-BR"') ||
       (html.match(/<main\b/g) ?? []).length !== 1 ||
       (html.match(/<h1\b/g) ?? []).length > 1 ||
       (file === '404.html' && (html.match(/<h1\b/g) ?? []).length !== 1)
     )
       throw new Error(`HTML inválido: ${file}`);
-    if (/<link[^>]*rel="canonical"/.test(html))
-      throw new Error('Canonical não autorizado.');
     for (const match of html.matchAll(/(?:src|href)="(\/_next\/[^"?#]+)"/g))
       await readFile(join(root, match[1]));
   }

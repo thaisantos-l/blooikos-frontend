@@ -9,13 +9,20 @@ import { runtimeConfig } from '@/lib/site/runtime-config.server';
 import { SkipLink } from '@/components/accessibility/SkipLink';
 import { SiteIcon } from '@/components/layout/SiteIcon';
 import { siteIconEndpoint } from '@/lib/site/site-icon';
+import { loadSeo } from '@/lib/seo/load.server';
 
 // Export estático com leitura fresca no build; o transporte mantém no-store.
 export const dynamic = 'force-static';
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await loadSeo();
+  return {
+    metadataBase: new URL(seo.origin),
+    title: `Página não encontrada | ${seo.name}`,
+    robots: { index: false, follow: false },
+    icons: seo.icon ? { icon: seo.icon } : undefined,
+  };
+}
 
 export default async function RootLayout({
   children,
