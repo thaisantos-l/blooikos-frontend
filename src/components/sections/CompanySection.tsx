@@ -73,6 +73,7 @@ export function CompanySection({
             ) : null}
             {cta ? (
               <LinkArrow
+                colorOnly
                 href={cta.href}
                 target={cta.target}
                 className={styles.cta}

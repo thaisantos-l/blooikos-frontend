@@ -1,5 +1,3 @@
-@use '../../styles/mixins';
-
 .section {
   padding-block: clamp(3rem, 10vw, 9rem);
 }
@@ -95,10 +93,6 @@
 
 .presentation > .cta:not(:first-child) {
   margin-top: var(--space-8);
-}
-
-.cta {
-  @include mixins.surface-transition;
 }
 
 .photo {

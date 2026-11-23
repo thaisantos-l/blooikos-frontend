@@ -1,12 +1,24 @@
 import type { SiteChrome } from '../../lib/site/types';
+import type {
+  CompanySocial,
+  ContactInstagram,
+} from '../../lib/site/footer-social';
 import { Container } from '../ui/Container';
 import { TextLink } from '../ui/TextLink';
 import { BrandLink } from './BrandLink';
 import styles from './Footer.module.scss';
-export function Footer({ site }: { site: SiteChrome }) {
+export function Footer({
+  site,
+  social = [],
+  contactInstagram = null,
+}: {
+  site: SiteChrome;
+  social?: CompanySocial[];
+  contactInstagram?: ContactInstagram | null;
+}) {
   const contact = site.contacts;
   const hasContact = Boolean(
-    contact.phone || contact.email || contact.instagram || contact.address,
+    contact.phone || contact.email || contactInstagram || contact.address,
   );
   const hasIdentity = Boolean(
     site.brandName || site.logo || site.logoInverse || site.description,
@@ -15,6 +27,7 @@ export function Footer({ site }: { site: SiteChrome }) {
     !hasIdentity &&
     !site.footerNavigation.length &&
     !site.companies.length &&
+    !social.length &&
     !hasContact &&
     !site.copyrightHolder
   )
@@ -22,7 +35,9 @@ export function Footer({ site }: { site: SiteChrome }) {
   return (
     <footer className={styles.footer}>
       <Container>
-        <div className={styles.columns}>
+        <div
+          className={`${styles.columns} ${social.length ? styles.withSocial : ''}`}
+        >
           {hasIdentity ? (
             <div className={styles.identity}>
               <BrandLink
@@ -77,6 +92,24 @@ export function Footer({ site }: { site: SiteChrome }) {
               </ul>
             </nav>
           ) : null}
+          {social.length ? (
+            <nav aria-label="Instagram — rodapé">
+              <h2 className={styles.heading}>Instagram</h2>
+              <ul className={styles.list}>
+                {social.map((company) => (
+                  <li key={company.id}>
+                    <TextLink
+                      typography="footer"
+                      tone="inverse"
+                      href={company.instagramUrl}
+                    >
+                      {company.name}
+                    </TextLink>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
           {hasContact ? (
             <section aria-labelledby="footer-contact-title">
               <h2 id="footer-contact-title" className={styles.heading}>
@@ -105,14 +138,14 @@ export function Footer({ site }: { site: SiteChrome }) {
                     </TextLink>
                   </li>
                 ) : null}
-                {contact.instagram ? (
+                {contactInstagram ? (
                   <li>
                     <TextLink
                       typography="footer"
                       tone="inverse"
-                      href={contact.instagram}
+                      href={contactInstagram.href}
                     >
-                      Instagram
+                      {contactInstagram.label}
                     </TextLink>
                   </li>
                 ) : null}

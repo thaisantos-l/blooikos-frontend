@@ -8,13 +8,14 @@ import styles from './LinkArrow.module.scss';
 export function LinkArrow({
   className = '',
   children,
+  colorOnly = false,
   ...props
-}: NativeLinkProps) {
+}: NativeLinkProps & { colorOnly?: boolean }) {
   return (
     <a
       {...props}
       {...linkAttributes(props)}
-      className={`${styles.link} ${className}`}
+      className={`${styles.link} ${colorOnly ? styles.colorOnly : ''} ${className}`}
     >
       <span className={styles.label}>{children}</span>
       {/* SVG original 1:189, local e decorativo; nenhum otimizador de imagem em runtime. */}
