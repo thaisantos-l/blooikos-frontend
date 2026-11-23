@@ -10,6 +10,7 @@ import { SkipLink } from '@/components/accessibility/SkipLink';
 import { SiteIcon } from '@/components/layout/SiteIcon';
 import { siteIconEndpoint } from '@/lib/site/site-icon';
 import { loadSeo } from '@/lib/seo/load.server';
+import { loadFooterSocial } from '@/lib/site/load-footer-social.server';
 
 // Export estático com leitura fresca no build; o transporte mantém no-store.
 export const dynamic = 'force-static';
@@ -27,7 +28,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { content, metadata } = await loadSiteCapture();
+  const [{ content, metadata }, social] = await Promise.all([
+    loadSiteCapture(),
+    loadFooterSocial(),
+  ]);
   const config = runtimeConfig();
   return (
     <html lang="pt-BR" className={sora.variable}>
@@ -43,7 +47,7 @@ export default async function RootLayout({
           config={config}
         >
           {children}
-          <LiveFooter />
+          <LiveFooter initialSocial={social} />
         </ContentProvider>
       </body>
     </html>

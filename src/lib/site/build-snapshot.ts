@@ -1,5 +1,6 @@
 import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { setTimeout as pause } from 'node:timers/promises';
 import { parseGraphQLConfig } from '../env';
 import { requestGraphQL } from '../graphql/transport';
 import {
@@ -144,6 +145,47 @@ export async function readPublicSnapshot(
     versionUrl: endpoint.href,
     request,
   };
+}
+
+// A dev page can load while an editor is saving. Retry the complete verified
+// capture, allowing the runtime API to recover a closed pending revision.
+// Production builds keep their existing fail-closed, single-capture behavior.
+export async function readDevelopmentSnapshot() {
+  const config = parseGraphQLConfig(process.env, 'development');
+  const endpoint = seoEndpoint(config.endpoint).replace(
+    /site-seo$/,
+    'site-content',
+  );
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await readPublicSnapshot('development');
+    } catch (error) {
+      if (
+        attempt >= 3 ||
+        !(error instanceof Error) ||
+        ![
+          'CONTENT_NOT_READY',
+          'CONTENT_CHANGED_DURING_CAPTURE',
+          'SEO_HOME_CHANGED_DURING_CAPTURE',
+        ].includes(error.message)
+      )
+        throw error;
+      if (error.message === 'CONTENT_NOT_READY') {
+        try {
+          const response = await fetch(endpoint, {
+            credentials: 'omit',
+            cache: 'no-store',
+            redirect: 'error',
+            signal: AbortSignal.timeout(4000),
+          });
+          await response.body?.cancel();
+        } catch {
+          // The next full capture still has to validate version and digests.
+        }
+      }
+      await pause(1000);
+    }
+  }
 }
 
 export async function captureSnapshot(nonce: string) {
