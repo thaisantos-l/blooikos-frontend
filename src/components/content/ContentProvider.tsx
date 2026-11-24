@@ -10,6 +10,8 @@ import {
 } from 'react';
 import type { SiteContent } from '../../lib/site/validate-content';
 import type { ContentVersion } from '../../lib/site/content-version.shared';
+import type { FooterSocial } from '../../lib/site/footer-social';
+import { useFooterSocial } from '../../lib/site/use-footer-social';
 import {
   ContentReadError,
   readRuntimeContent,
@@ -21,7 +23,9 @@ interface ContentState {
   config: RuntimeConfig;
   retainForm: boolean;
 }
-const ContentContext = createContext<ContentState | null>(null);
+const ContentContext = createContext<
+  (ContentState & { social: FooterSocial }) | null
+>(null);
 export function useSiteContent() {
   const value = useContext(ContentContext);
   if (!value) throw new Error('CONTENT_PROVIDER_MISSING');
@@ -33,12 +37,15 @@ export function ContentProvider({
   metadata,
   config,
   children,
+  initialSocial,
 }: {
   initialContent: SiteContent;
   metadata: ContentVersion;
   config: RuntimeConfig;
   children: ReactNode;
+  initialSocial?: FooterSocial;
 }) {
+  const social = useFooterSocial(config.contactEndpoint, initialSocial);
   const [state, setState] = useState<ContentState>(() => ({
     content: initialContent,
     config,
@@ -155,7 +162,7 @@ export function ContentProvider({
     [config],
   );
   return (
-    <ContentContext.Provider value={state}>
+    <ContentContext.Provider value={{ ...state, social }}>
       {children}
       <p
         role="status"

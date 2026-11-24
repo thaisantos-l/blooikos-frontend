@@ -14,7 +14,7 @@ import styles from '../../app/page.module.scss';
 
 export function LiveHome() {
   const mainRef = useScrollReveal();
-  const { content, config, retainForm } = useSiteContent();
+  const { content, config, retainForm, social } = useSiteContent();
   const {
     site,
     hero,
@@ -44,6 +44,7 @@ export function LiveHome() {
           contact={contact}
           endpoint={config.contactEndpoint}
           retainForm={retainForm}
+          instagram={social.sharedInstagram}
         />
       </main>
     </>

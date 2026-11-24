@@ -20,6 +20,7 @@ export interface AboutContent {
     name: string;
     summary: string;
     icon?: SiteImage;
+    link?: Omit<SiteLink, 'id'>;
   }[];
 }
 
@@ -54,6 +55,7 @@ export function normalizeAbout(
               name,
               summary,
               icon,
+              link: contentLink(company.cta, siteOrigin),
             },
           ]
         : [];
