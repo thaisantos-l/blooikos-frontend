@@ -45,9 +45,10 @@ export default async function RootLayout({
           initialContent={content}
           metadata={metadata}
           config={config}
+          initialSocial={social}
         >
           {children}
-          <LiveFooter initialSocial={social} />
+          <LiveFooter />
         </ContentProvider>
       </body>
     </html>

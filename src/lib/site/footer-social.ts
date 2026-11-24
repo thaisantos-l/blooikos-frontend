@@ -4,15 +4,19 @@ export interface CompanySocial {
   instagramUrl: string;
 }
 
-export interface ContactInstagram {
-  companyId: string;
+export interface InstagramLink {
   label: string;
   href: string;
+}
+
+export interface ContactInstagram extends InstagramLink {
+  companyId: string;
 }
 
 export interface FooterSocial {
   companies: CompanySocial[];
   contactInstagram: ContactInstagram | null;
+  sharedInstagram: InstagramLink | null;
 }
 
 function instagramDestination(value: unknown): string | null {
@@ -36,20 +40,27 @@ function instagramDestination(value: unknown): string | null {
   }
 }
 
-function readContactInstagram(value: unknown): ContactInstagram | null {
+function readInstagramLink(value: unknown): InstagramLink | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  const { companyId, label, href } = value as Record<string, unknown>;
+  const { label, href } = value as Record<string, unknown>;
   const destination = instagramDestination(href);
   if (
-    typeof companyId !== 'string' ||
-    !/^[1-9]\d*$/.test(companyId) ||
     typeof label !== 'string' ||
     label.trim() !== label ||
     !/^@[a-zA-Z0-9._]{1,30}$/.test(label) ||
     !destination
   )
     return null;
-  return { companyId, label, href: destination };
+  return { label, href: destination };
+}
+
+function readContactInstagram(value: unknown): ContactInstagram | null {
+  const link = readInstagramLink(value);
+  if (!link) return null;
+  const { companyId } = value as Record<string, unknown>;
+  return typeof companyId === 'string' && /^[1-9]\d*$/.test(companyId)
+    ? { companyId, ...link }
+    : null;
 }
 
 export function footerSocialEndpoint(contactEndpoint: string): string {
@@ -65,10 +76,8 @@ export function footerSocialEndpoint(contactEndpoint: string): string {
 export function readFooterSocial(value: unknown): FooterSocial {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('INVALID_FOOTER_SOCIAL');
-  const { schemaVersion, companies, contactInstagram } = value as Record<
-    string,
-    unknown
-  >;
+  const { schemaVersion, companies, contactInstagram, sharedInstagram } =
+    value as Record<string, unknown>;
   if (schemaVersion !== 1 || !Array.isArray(companies) || companies.length > 6)
     throw new Error('INVALID_FOOTER_SOCIAL');
   const seen = new Set<string>();
@@ -92,6 +101,7 @@ export function readFooterSocial(value: unknown): FooterSocial {
   return {
     companies: links,
     contactInstagram: readContactInstagram(contactInstagram),
+    sharedInstagram: readInstagramLink(sharedInstagram),
   };
 }
 

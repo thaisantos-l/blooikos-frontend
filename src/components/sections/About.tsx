@@ -3,8 +3,35 @@ import { Container } from '../ui/Container';
 import { SectionHeading } from '../ui/SectionHeading';
 import { LinkArrow } from '../ui/LinkArrow';
 import { ResponsiveImage } from '../ui/ResponsiveImage';
+import { linkAttributes } from '../../lib/links';
 import headingStyles from '../ui/SectionHeading.module.scss';
 import styles from './About.module.scss';
+
+function CompanyCardContent({
+  company,
+}: {
+  company: AboutContent['companies'][number];
+}) {
+  return (
+    <>
+      {company.icon ? (
+        <ResponsiveImage
+          {...company.icon}
+          alt={company.icon.alt === company.name ? '' : company.icon.alt}
+          className={styles.icon}
+        />
+      ) : null}
+      {company.name || company.summary ? (
+        <div className={styles.companyText}>
+          {company.name ? <p className={styles.name}>{company.name}</p> : null}
+          {company.summary ? (
+            <p className={styles.summary}>{company.summary}</p>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+}
 
 export function About({ about }: { about: AboutContent }) {
   const hasText = Boolean(
@@ -53,26 +80,23 @@ export function About({ about }: { about: AboutContent }) {
         {about.companies.length ? (
           <ul className={styles.cards}>
             {about.companies.map((company) => (
-              <li key={company.id} className={styles.card} data-reveal>
-                {company.icon ? (
-                  <ResponsiveImage
-                    {...company.icon}
-                    alt={
-                      company.icon.alt === company.name ? '' : company.icon.alt
-                    }
-                    className={styles.icon}
-                  />
-                ) : null}
-                {company.name || company.summary ? (
-                  <div className={styles.companyText}>
-                    {company.name ? (
-                      <p className={styles.name}>{company.name}</p>
-                    ) : null}
-                    {company.summary ? (
-                      <p className={styles.summary}>{company.summary}</p>
-                    ) : null}
+              <li key={company.id} data-reveal>
+                {company.link ? (
+                  <a
+                    {...linkAttributes({
+                      href: company.link.href,
+                      target: company.link.target,
+                      'aria-label': company.name || company.link.label,
+                    })}
+                    className={`${styles.card} ${styles.cardLink}`}
+                  >
+                    <CompanyCardContent company={company} />
+                  </a>
+                ) : (
+                  <div className={styles.card}>
+                    <CompanyCardContent company={company} />
                   </div>
-                ) : null}
+                )}
               </li>
             ))}
           </ul>

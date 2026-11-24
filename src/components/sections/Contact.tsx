@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- Assets decorativos locais, sem otimização remota. */
 import type { ContactContent } from '../../lib/site/normalize-contact';
+import type { InstagramLink } from '../../lib/site/footer-social';
 import { Container } from '../ui/Container';
 import { SectionHeading } from '../ui/SectionHeading';
 import { TextLink } from '../ui/TextLink';
@@ -28,14 +29,21 @@ export function Contact({
   contact,
   endpoint,
   retainForm = false,
+  instagram = null,
 }: {
   contact: ContactContent;
   endpoint: string;
   retainForm?: boolean;
+  instagram?: InstagramLink | null;
 }) {
   const { eyebrow, title, variant, company, contacts, showForm } = contact;
   const renderForm = showForm || retainForm;
-  const hasContacts = company || Object.values(contacts).some(Boolean);
+  const hasContacts =
+    company ||
+    contacts.address ||
+    contacts.phone ||
+    contacts.email ||
+    instagram;
   if (!eyebrow && !title && !hasContacts && !renderForm)
     return <div id="contato" tabIndex={-1} />;
   return (
@@ -112,10 +120,10 @@ export function Contact({
                     </TextLink>
                   </p>
                 ) : null}
-                {contacts.instagram ? (
+                {instagram ? (
                   <p className={styles.contactRow}>
                     <Icon name="instagram" />
-                    <TextLink href={contacts.instagram}>Instagram</TextLink>
+                    <TextLink href={instagram.href}>{instagram.label}</TextLink>
                   </p>
                 ) : null}
               </div>

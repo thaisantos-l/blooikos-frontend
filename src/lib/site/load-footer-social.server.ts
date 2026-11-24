@@ -9,7 +9,11 @@ import {
 
 // Additive endpoint: older CMS releases may not expose the optional menu yet.
 export const loadFooterSocial = cache(async (): Promise<FooterSocial> => {
-  const empty: FooterSocial = { companies: [], contactInstagram: null };
+  const empty: FooterSocial = {
+    companies: [],
+    contactInstagram: null,
+    sharedInstagram: null,
+  };
   try {
     const endpoint = footerSocialEndpoint(runtimeConfig().contactEndpoint);
     const result = await requestFooterSocial(endpoint);
@@ -17,6 +21,7 @@ export const loadFooterSocial = cache(async (): Promise<FooterSocial> => {
       ? {
           companies: result.companies,
           contactInstagram: result.contactInstagram,
+          sharedInstagram: result.sharedInstagram,
         }
       : empty;
   } catch {
